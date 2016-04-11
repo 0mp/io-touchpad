@@ -1,16 +1,21 @@
 CC=gcc
 CFLAGS=-c -fPIC
 LDFLAGS=-shared
+LIBDIR=lib
+OBJDIR=obj
+SRCDIR=src
 
-all: lib/touchpadlib.so
+all: $(LIBDIR)/touchpadlib.so
 
-lib/touchpadlib.so: touchpadlib.o
-	mkdir lib
-	$(CC) $(LDFLAGS) -Wl,-soname,touchpadlib.so -o lib/touchpadlib.so touchpadlib.o
+$(LIBDIR)/touchpadlib.so: $(OBJDIR)/touchpadlib.o
+	-@mkdir $(LIBDIR)
+	$(CC) $(LDFLAGS) -Wl,-soname,touchpadlib.so -o $(LIBDIR)/touchpadlib.so $(OBJDIR)/touchpadlib.o
 
-touchpadlib.o: touchpadlib/touchpadlib.c touchpadlib/touchpadlib.h
-	$(CC) $(CFLAGS) -o touchpadlib.o touchpadlib/touchpadlib.c
+$(OBJDIR)/touchpadlib.o: $(SRCDIR)/touchpadlib.c $(SRCDIR)/touchpadlib.h
+	-@mkdir $(OBJDIR)
+	$(CC) $(CFLAGS) -o $(OBJDIR)/touchpadlib.o $(SRCDIR)/touchpadlib.c
 
 clean:
-	-@rm -f *.o lib/touchpadlib.so 2>/dev/null || true
-	-@rmdir lib 2>/dev/null || true
+	-@rm -f $(OBJDIR)/*.o $(LIBDIR)/touchpadlib.so 2>/dev/null || true
+	-@rmdir $(LIBDIR) 2>/dev/null || true
+	-@rmdir $(OBJDIR) 2>/dev/null || true
