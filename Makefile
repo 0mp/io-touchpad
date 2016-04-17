@@ -8,11 +8,11 @@ SRCDIR=src
 all: $(LIBDIR)/touchpadlib.so
 
 $(LIBDIR)/touchpadlib.so: $(OBJDIR)/touchpadlib.o
-	-@mkdir $(LIBDIR)
+	-@mkdir $(LIBDIR) 2>/dev/null || true
 	$(CC) $(LDFLAGS) -Wl,-soname,touchpadlib.so -o $(LIBDIR)/touchpadlib.so $(OBJDIR)/touchpadlib.o
 
 $(OBJDIR)/touchpadlib.o: $(SRCDIR)/touchpadlib.c $(SRCDIR)/touchpadlib.h
-	-@mkdir $(OBJDIR)
+	-@mkdir $(OBJDIR) 2>/dev/null || true
 	$(CC) $(CFLAGS) -o $(OBJDIR)/touchpadlib.o $(SRCDIR)/touchpadlib.c
 
 clean:
