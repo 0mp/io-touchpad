@@ -785,7 +785,7 @@ static int test_grab(int fd)
  * @return File descriptor to the device selected by the user.
  *  -1 if the function fails to return a proper file descriptor.
  */
-int initalize_touchpadlib_usage()
+int initialize_touchpadlib_usage()
 {
     int fd;
     char *filename = NULL;
