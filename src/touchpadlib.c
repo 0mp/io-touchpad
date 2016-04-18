@@ -232,7 +232,7 @@ static int print_device_info(int fd)
     unsigned long bit[EV_MAX][NBITS(KEY_MAX)];
 
     if (ioctl(fd, EVIOCGVERSION, &version)) {
-        perror("evtest: can't get version");
+        perror("touchpadlib: can't get version");
         return 1;
     }
 
@@ -394,7 +394,7 @@ int initalize_touchpadlib_usage()
         return EXIT_FAILURE;
 
     if ((fd = open(filename, O_RDONLY)) < 0) {
-        perror("evtest");
+        perror("touchpadlib");
         if (errno == EACCES && getuid() != 0)
             fprintf(stderr, "You do not have access to %s. Try "
                     "running as root instead.\n",
