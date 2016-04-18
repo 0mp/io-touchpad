@@ -851,7 +851,7 @@ struct touchpad_event *new_event() {
  *
  * @param event The event to be freed.
  */
-void erase_event(struct touchpad_event *event) {
+void free_event(struct touchpad_event *event) {
     free(event);
 }
 

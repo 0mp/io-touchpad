@@ -123,7 +123,7 @@ class TouchpadSignal:
     @classmethod
     def free_touchpad_event(cls):
         """Free the memory allocated for the touchpad_event."""
-        cls.touchpadlib.erase_event(cls.touchpad_event)
+        cls.touchpadlib.free_event(cls.touchpad_event)
 
     @classmethod
     def initialize_touchpadlib(cls):

@@ -13,7 +13,7 @@ struct touchpad_event {
 };
 
 /* struct touchpad_event interface. */
-void erase_event(struct touchpad_event *event);
+void free_event(struct touchpad_event *event);
 int get_x(struct touchpad_event *event);
 int get_y(struct touchpad_event *event);
 int get_pressure(struct touchpad_event *event);
