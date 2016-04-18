@@ -67,7 +67,11 @@ static const int maxval[EV_MAX + 1] = {
     [EV_ABS] = ABS_MAX,
 };
 
-static const char * const absval[6] = { "Value", "Min  ", "Max  ", "Fuzz ", "Flat ", "Resolution "};
+static const char * const absval[6] = {
+    "Value", "Min  ",
+    "Max  ", "Fuzz ",
+    "Flat ", "Resolution "
+};
 
 static const char * const absolutes[ABS_MAX + 1] = {
     [0 ... ABS_MAX] = NULL,
@@ -232,7 +236,7 @@ static int print_device_info(int fd)
     unsigned long bit[EV_MAX][NBITS(KEY_MAX)];
 
     if (ioctl(fd, EVIOCGVERSION, &version)) {
-        perror("touchpadlib: can't get version");
+        perror("ERROR: touchpadlib: can't get version");
         return 1;
     }
 
@@ -287,7 +291,7 @@ static void reset_touchpad_event(struct touchpad_event *event)
 }
 
 /**
- * Print the content of struct touchpad_event in a humand readable format.
+ * Print the content of struct touchpad_event in a human readable format.
  *
  * @param event A pointer to the touchpad_event which we want to print.
  */
@@ -314,9 +318,9 @@ int fetch_touchpad_event(int fd, struct touchpad_event *event)
     rd = read(fd, ev, sizeof(struct input_event) * 64);
 
     if (rd < (int) sizeof(struct input_event)) {
-        fprintf(stderr, "Expected %d bytes, got %d.\n",
+        fprintf(stderr, "ERROR: Expected %d bytes, got %d.\n",
                 (int) sizeof(struct input_event), rd);
-        perror("\ntouchpadlib: error reading.");
+        perror("\nERROR: touchpadlib: error reading.");
         return 1;
     }
 
@@ -386,7 +390,7 @@ int initalize_touchpadlib_usage()
     char *filename = NULL;
 
     if (!has_root_privileges())
-        fprintf(stderr, "Not running as root, no devices may be available.\n");
+        fprintf(stderr, "WARNING: Not running as root, no devices may be available.\n");
 
     filename = scan_devices();
 
@@ -394,9 +398,9 @@ int initalize_touchpadlib_usage()
         return EXIT_FAILURE;
 
     if ((fd = open(filename, O_RDONLY)) < 0) {
-        perror("touchpadlib");
+        perror("ERROR: touchpadlib");
         if (errno == EACCES && getuid() != 0)
-            fprintf(stderr, "You do not have access to %s. Try "
+            fprintf(stderr, "ERROR: You do not have access to %s. Try "
                     "running as root instead.\n",
                     filename);
         goto error;
