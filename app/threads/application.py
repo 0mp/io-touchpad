@@ -7,9 +7,10 @@ interprets the data.
 
 import time
 from signalcollection import signalcollection
+from classifier import classifier
 
 
-def application_thread(queue):
+def application_thread(queue, learning_mode=False, training_size=0):
     """The application thread function.
 
     Every iteration of the while loop one signal is read from the queue.
@@ -26,6 +27,10 @@ def application_thread(queue):
         queue (Queue): A inter-thread queue to pass signals between the
             listener and the application.
     """
+    clsf = classifier.Classifier()
+    if learning_mode:
+        clsf.reset_training_set(training_size)
+
     collection = signalcollection.SignalCollection()
 
     while 1:
@@ -33,7 +38,7 @@ def application_thread(queue):
             pass
 
         if not collection.is_recent_enough(time.time()):
-            send_points_to_interpreter(collection.as_list())
+            send_points_to_interpreter(collection.as_list(), learning_mode, clsf)
             collection.reset()
 
         if queue.empty():
@@ -42,13 +47,13 @@ def application_thread(queue):
         signal = queue.get()
 
         if signal.is_stop_signal():
-            send_points_to_interpreter(collection.as_list())
+            send_points_to_interpreter(collection.as_list(), learning_mode, clsf)
             collection.reset()
         elif signal.is_proper_signal_of_point():
             collection.add_and_maintain(signal)
 
 
-def send_points_to_interpreter(signal_list):
+def send_points_to_interpreter(signal_list, learning_mode, clsf):
     """Interpret the signals from the signal list.
 
     At the moment the function is not interpreting anything. It just prints the
@@ -59,6 +64,7 @@ def send_points_to_interpreter(signal_list):
     """
     if not signal_list:
         return
+    print()
     print("New portion of events:")
     counter = 0
     length = len(signal_list)
@@ -70,3 +76,12 @@ def send_points_to_interpreter(signal_list):
         print("Event #", counter, "\tout of", length, "in the list. x:",
               one_signal.get_x(), "y:", one_signal.get_y())
     print()
+    if learning_mode:
+        clsf.add_to_training_set(signal_list)
+    else:
+        item = clsf.classify(signal_list)
+        if item is not None:
+            # TODO execution
+            print("execution")
+        else:
+            print("not similar")
