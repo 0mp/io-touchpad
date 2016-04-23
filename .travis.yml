@@ -12,8 +12,8 @@ python:
 #             - python3-setuptools
 #             - python3-numpy
 #             - python3-scipy
-virtualenv:
-    system_site_packages: true
+# virtualenv:
+#     system_site_packages: true
 before_install:
     - sudo apt-get update -qq
     - sudo apt-get install -qq build-essential libatlas-dev libatlas-base-dev liblapack-dev gfortran
