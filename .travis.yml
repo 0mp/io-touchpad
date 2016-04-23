@@ -13,7 +13,7 @@ addons:
             - python3-numpy
             - python3-scipy
 install:
-    - pip3 install --user scikit-learn
+    - pip3 install scikit-learn
     - make
 script:
     - cd app/test

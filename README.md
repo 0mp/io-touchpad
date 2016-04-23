@@ -1,6 +1,6 @@
 # io-touchpad
 
-[![Code Health](https://landscape.io/github/0mp/io-touchpad/master/landscape.svg?style=flat-square)](https://landscape.io/github/0mp/io-touchpad/master)
+[[![Build Status](https://travis-ci.org/0mp/io-touchpad.svg?branch=master)](https://travis-ci.org/0mp/io-touchpad) ![Code Health](https://landscape.io/github/0mp/io-touchpad/master/landscape.svg?style=flat-square)](https://landscape.io/github/0mp/io-touchpad/master)
 
 ## Installation
 
