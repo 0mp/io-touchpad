@@ -13,7 +13,7 @@ addons:
             # - python3-setuptools
             - python3-numpy
             - python3-scipy
-            - python3-pytest
+            # - python3-pytest
 before_install:
     - pip install -U pip setuptools wheel
     # - sudo apt-get update -qq
