@@ -32,4 +32,5 @@ script:
     - py.test-3
 notifications:
     slack: io-touchpad:Fv8xkXiL4PSbXN8GN9hDAlxp
+    email: false
 
