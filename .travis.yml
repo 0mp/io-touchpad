@@ -2,17 +2,18 @@ language: python
 python:
     - "3.4"
     - "3.5"
-addons:
-    apt:
-        packages:
-            - build-essential
-            - libatlas-dev
-            - libatlas3g-base # Should be libatlas3gf-base.
-            - python3-dev
-            - python3-setuptools
-            - python3-numpy
-            - python3-scipy
+# addons:
+#     apt:
+#         packages:
+#             - build-essential
+#             - libatlas-dev
+#             - libatlas3gf-base # Should be libatlas3gf-base.
+#             - python3-dev
+#             - python3-setuptools
+#             - python3-numpy
+#             - python3-scipy
 install:
+    - sudo apt-get install build-essential libatlas3gf-dev libatlas-dev python3-dev python3-setuptools python3-numpy python3-scipy
     - pip3 install scikit-learn
     - make
 script:
