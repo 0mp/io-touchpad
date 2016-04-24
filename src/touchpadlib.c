@@ -278,7 +278,7 @@ int fetch_touchpad_specification(int fd,
     unsigned long bit[EV_MAX][NBITS(KEY_MAX)];
 
     if (ioctl(fd, EVIOCGVERSION, &version)) {
-        perror("ERROR: touchpadlib: can't get version");
+        perror("touchpadlib: error");
         return 1;
     }
 
@@ -362,9 +362,9 @@ int fetch_touchpad_event(int fd, struct touchpad_event *event)
     rd = read(fd, ev, sizeof(struct input_event) * 64);
 
     if (rd < (int) sizeof(struct input_event)) {
-        fprintf(stderr, "ERROR: touchpadlib: Expected %d bytes, got %d.\n",
+        fprintf(stderr, "touchpadlib: error: expected %d bytes, got %d\n",
                 (int) sizeof(struct input_event), rd);
-        perror("\nERROR: touchpadlib: error reading.");
+        perror("touchpadlib: error");
         return 1;
     }
 
@@ -437,8 +437,8 @@ int initialize_touchpadlib_usage()
 
     if (!has_root_privileges())
         fprintf(stderr,
-                "WARNING: touchpadlib: "
-                "Not running as root, no devices may be available.\n");
+                "touchpadlib: warning: "
+                "not running as root, no devices may be available\n");
 
     filename = scan_devices();
 
@@ -446,10 +446,10 @@ int initialize_touchpadlib_usage()
         return EXIT_FAILURE;
 
     if ((fd = open(filename, O_RDONLY)) < 0) {
-        perror("ERROR: touchpadlib:");
+        perror("touchpadlib: error");
         if (errno == EACCES && getuid() != 0)
-            fprintf(stderr, "ERROR: touchpadlib: You do not have access to %s. "
-                    "Try running as root instead.\n",
+            fprintf(stderr, "touchpadlib: error: you do not have access to %s; "
+                    "try running as root instead\n",
                     filename);
         goto error;
     }
