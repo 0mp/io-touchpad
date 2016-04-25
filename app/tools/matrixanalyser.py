@@ -111,10 +111,11 @@ class MatrixAnalyser(object):
     def _normalize_x(self, x_value):
         normalized_x = x_value - self.min_x
         if normalized_x > self.max_x:
-            print("WARNING: matrixanalyser: "
+            print("matrixanalyser.py: warning: "
                   "The x coordinate of the recived signal "
                   "is out of the touchpad's detected range. "
-                  "Consider passing a larger tolerance argument.")
+                  "Consider passing a larger tolerance argument.",
+                  file=sys.stderr)
             return None
         else:
             return normalized_x
@@ -122,10 +123,11 @@ class MatrixAnalyser(object):
     def _normalize_y(self, y_value):
         normalized_y = y_value - self.min_y
         if normalized_y > self.max_y:
-            print("WARNING: matrixanalyser: "
+            print("matrixanalyser.py: warning:"
                   "The y coordinate of the recived signal "
                   "is out of the touchpad's detected range. "
-                  "Consider passing a larger tolerance argument.")
+                  "Consider passing a larger tolerance argument.",
+                  file=sys.stderr)
             return None
         else:
             return normalized_y

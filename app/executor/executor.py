@@ -6,6 +6,7 @@ This module executes commands.
 """
 
 import subprocess
+import sys
 from databox import databox
 
 
@@ -29,8 +30,8 @@ def execute(command_id):
     command_id = str(command_id)
     command, arguments = databox.get_command_and_arguments(command_id)
     if command is None:
-        print("ERROR: executor: The command related to the detected symbol "
-              "is missing.")
+        print("executor: error: the command related to the detected symbol "
+              "is missing", file=sys.stderr)
         return False
     else:
         DEVNULL = subprocess.DEVNULL

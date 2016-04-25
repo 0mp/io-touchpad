@@ -45,7 +45,7 @@ class Classifier:
             except FileNotFoundError:
                 print("classifier.py: error: file with the learning model "
                       "doesn't exist; please start the application in the "
-                      "learning mode")
+                      "learning mode", file=sys.err)
                 _thread.interrupt_main()
                 sys.exit(1)
 
@@ -58,7 +58,7 @@ class Classifier:
             except FileNotFoundError:
                 print("classifier.py: error: file with the tolerance distance "
                       "doesn't exist; please start the application in the "
-                      "learning mode")
+                      "learning mode", file=sys.stderr)
                 _thread.interrupt_main()
                 sys.exit(1)
 
@@ -76,7 +76,9 @@ class Classifier:
         try:
             file_with_training = open(self.training_set_file_path, 'rb')
         except FileNotFoundError:
-            print("File with training-set doesn't exist, please do learning.")
+            print("classifier.py: error: file with training set doesn't exist; "
+                  "please start the application in the learning mode",
+                  file=sys.stderr)
             _thread.interrupt_main()
             sys.exit(1)
 
