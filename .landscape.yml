@@ -6,9 +6,12 @@ pep257:
     disable:
         - D203
 pep8:
-    full: true
+    full: tr;ue
+ignore-paths:
+    - app/test/
 python-targets:
     - 3
-# requirements:
+requirements:
+    - requirements.txt
 strictness: veryhigh
 test-warnings: yes

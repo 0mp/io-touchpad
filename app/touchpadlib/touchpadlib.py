@@ -89,7 +89,7 @@ class Touchpadlib:
     def initialize(cls):
         """Initialize the static variables."""
         if cls.touchpadlib is None:
-            cls.conncect_to_library()
+            cls.connect_to_library()
         if cls.touchpad_event is None:
             cls.create_touchpad_event()
         if cls.touchpad_file_descriptor is None:
@@ -98,13 +98,14 @@ class Touchpadlib:
             cls.create_touchpad_specification()
 
     @classmethod
-    def conncect_to_library(cls):
-        """Conncet to the touchpadlib."""
+    def connect_to_library(cls):
+        """Connect to the touchpadlib."""
         try:
             cls.touchpadlib = \
                     ctypes.cdll.LoadLibrary(TOUCHPADLIB_SHARED_LIBRARY)
         except OSError:
-            print("ERROR: No such library as touchpadlib.so.")
+            print("touchpadlib.py: error: no such library as touchpadlib.so",
+                  file=sys.stderr)
             cls.interrupt_and_finish()
 
     @classmethod
@@ -113,7 +114,8 @@ class Touchpadlib:
         cls.touchpadlib.new_event.restype = ctypes.POINTER(TouchpadEvent)
         cls.touchpad_event = cls.touchpadlib.new_event()
         if cls.touchpad_event == 0:
-            print("ERROR: Cannot allocate memory in new_event().")
+            print("touchpadlib.py: error: cannot allocate memory in "
+                  "new_event()", file=sys.stderr)
             cls.interrupt_and_finish()
 
     @classmethod
@@ -123,7 +125,8 @@ class Touchpadlib:
             ctypes.POINTER(TouchpadSpecification)
         cls.touchpad_specification = cls.touchpadlib.new_specification()
         if cls.touchpad_specification == 0:
-            print("ERROR: Cannot allocate memory in new_specification().")
+            print("touchpadlib.py: error: cannot allocate memory in "
+                  "new_specification()", file=sys.stderr)
             cls.interrupt_and_finish()
 
     @classmethod
@@ -146,7 +149,8 @@ class Touchpadlib:
         cls.touchpad_file_descriptor = \
             cls.touchpadlib.initialize_touchpadlib_usage()
         if cls.touchpad_file_descriptor == ctypes.c_int(-1):
-            print("ERROR: touchpadlib initialize error.")
+            print("touchpadlib.py: error: touchpadlib initialize error",
+                  file=sys.stderr)
             cls.interrupt_and_finish()
 
     @classmethod
@@ -156,7 +160,8 @@ class Touchpadlib:
         file_descriptor = cls.touchpad_file_descriptor
         event = cls.touchpad_event
         if fetch_event(file_descriptor, event) == 1:
-            print("ERROR: touchpadlib fetch error.")
+            print("touchpadlib.py: error: touchpadlib fetch error",
+                  file=sys.stderr)
             cls.interrupt_and_finish()
 
     @classmethod
@@ -166,7 +171,8 @@ class Touchpadlib:
         file_descriptor = cls.touchpad_file_descriptor
         specification = cls.touchpad_specification
         if fetch_specification(file_descriptor, specification) != 0:
-            print("ERROR: Can't get the touchpad specification.")
+            print("touchpadlib.py: error: can't get the touchpad "
+                  "specification", file=sys.stderr)
             cls.interrupt_and_finish()
 
     @classmethod

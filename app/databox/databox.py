@@ -63,6 +63,7 @@ class Command(object):
 
 _USER_DEFINED_COMMANDS = {}
 _BUILTIN_COMMANDS = {
+    '0': Command('echo', 'test'),
     '1': Command('x-www-browser', ''),
 }
 
