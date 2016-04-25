@@ -69,7 +69,7 @@ def main():
     if learning_mode:
         if training_size < 3:
             print('app.py: error: the training size should be at least %d'
-                  % (MIN_TRAINING_SIZE))
+                  % (MIN_TRAINING_SIZE), file=sys.stderr)
             sys.exit(1)
         print("Welcome to learning mode.\n"
               "Think of a symbol you want the application to learn "

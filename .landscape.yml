@@ -7,7 +7,7 @@ pep257:
         - D203
 pep8:
     full: tr;ue
-ignore-paths
+ignore-paths:
     - app/test/
 python-targets:
     - 3
