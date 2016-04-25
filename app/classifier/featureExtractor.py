@@ -120,8 +120,10 @@ def create_normalized_list_of_points(center_of_mass, min_x, min_y, max_x, max_y,
 
 def draw_new_points(list_of_points):
     # testing function, to use with matrixanalyser
-    center_of_mass, min_x, min_y, max_x, max_y, curve_length = calculate_normalization_values(list_of_points)
-    new_points = create_normalized_list_of_points(center_of_mass, min_x, min_y, max_x, max_y, curve_length, list_of_points)
+    center_of_mass, min_x, min_y, max_x, max_y, curve_length \
+        = calculate_normalization_values(list_of_points)
+    new_points = create_normalized_list_of_points(center_of_mass, min_x, min_y,
+                                                  max_x, max_y, curve_length, list_of_points)
 
     get_features(list_of_points)
 
