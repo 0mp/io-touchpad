@@ -1,36 +1,46 @@
 # -*- coding: utf-8 -*-
 """The application thread function.
 
-It receives signals/events from the listener thread using a queue and then
-interprets the data.
+It receives signals from the listener thread using a queue and then
+interprets the data and undertakes learning of a new symbol or orders the
+execution of a command related to a recoginsed symbol.
 """
 
 import time
-from signalcollection import signalcollection
-from classifier import classifier
+from classifier import classifier as classifier_module
 from executor import executor
+from signalcollection import signalcollection
 
 
-def application_thread(queue, learning_mode=False, training_size=0):
+def application_thread(queue, learning_mode=False, training_size=0,
+                       system_bitness=None):
     """The application thread function.
 
     Every iteration of the while loop one signal is read from the queue.
     The signals are sent to the interpreter if there is a longer pause between
-    signals or if there is a signal meaning that the hand has been lifted.
+    signals.
 
-    At the moment only the pause is meaningful for us.
+    Args:
+        queue (Queue): The inter-thread queue to pass signals between the
+            listener and the application.
+        learning_mode (bool): The variable which stores the information if
+            the app is in the learning mode or not.
+        training_size (int): The number of the learning samples of the symbol
+            that the user is asked for to draw.
+        system_bitness (int): The bitness of the system. The only legal values
+            are {None, 32, 64}. If the value is 32 or 64 then set of hardcoded
+            symbols (with respect to the provided bitness) will be
+            recogniezed instead of the user defined symbols.
 
     Variables:
         collection (SignalCollection): A collection of signals sent by
             the listener thread. Mostly touchpad events but not necessarily.
 
-    Args:
-        queue (Queue): A inter-thread queue to pass signals between the
-            listener and the application.
     """
-    clsf = classifier.Classifier(learning_mode=learning_mode)
+    classifier = classifier_module.Classifier(learning_mode=learning_mode,
+                                              system_bitness=system_bitness)
     if learning_mode:
-        clsf.reset_training_set(training_size)
+        classifier.reset_training_set(training_size)
 
     collection = signalcollection.SignalCollection()
 
@@ -39,7 +49,8 @@ def application_thread(queue, learning_mode=False, training_size=0):
             pass
 
         if not collection.is_recent_enough(time.time()):
-            send_points_to_interpreter(collection.as_list(), learning_mode, clsf)
+            send_points_to_interpreter(collection.as_list(), learning_mode,
+                                       classifier)
             collection.reset()
 
         if queue.empty():
@@ -48,13 +59,15 @@ def application_thread(queue, learning_mode=False, training_size=0):
         signal = queue.get()
 
         if signal.is_stop_signal():
-            send_points_to_interpreter(collection.as_list(), learning_mode, clsf)
+            send_points_to_interpreter(collection.as_list(), learning_mode,
+                                       classifier)
             collection.reset()
-        elif signal.is_proper_signal_of_point() or signal.is_raising_finger_signal():
+        elif signal.is_proper_signal_of_point() \
+                or signal.is_raising_finger_signal():
             collection.add_and_maintain(signal)
 
 
-def send_points_to_interpreter(signal_list, learning_mode, clsf):
+def send_points_to_interpreter(signal_list, learning_mode, classifier):
     """Interpret the signals from the signal list.
 
     It prints the first 10 signals from the signal_list. All of them are
@@ -67,7 +80,8 @@ def send_points_to_interpreter(signal_list, learning_mode, clsf):
     Args:
         signal_list (list): List of signals captured from the touchpad.
         learning_mode (bool): Tells if it is a learning session or not.
-        clsf (Classifier): The Classifier class.
+        classifier (Classifier): The Classifier class object.
+
     """
     if not signal_list:
         return
@@ -92,9 +106,9 @@ def send_points_to_interpreter(signal_list, learning_mode, clsf):
     print()
 
     if learning_mode:
-        clsf.add_to_training_set(signal_list)
+        classifier.add_to_training_set(signal_list)
     else:
-        item = clsf.classify(signal_list)
+        item = classifier.classify(signal_list)
         if item is not None:
             print("execution")
             executor.execute(item)

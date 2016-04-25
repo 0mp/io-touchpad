@@ -17,13 +17,15 @@
 
         cd app
 
-2. Undertake a learning session.
+2. Undertake a learning session with a trainig size of SIZE:
 
-        sudo ./app.py 5
+        sudo ./app.py --learning SIZE
 
 3. Use the app. (Hopefully, it will recognise your symbol.)
 
         sudo ./app
+
+If you want to use predefined, hardcoded symbols run `./app --help` for more information.
 
 ## Description
 
@@ -44,11 +46,6 @@
     to symbol_interpreter. This is implemented so that if someone randomly draws shapes on touchpad without intention
     to send symbol, then they won't overflow memory. Currently symbol_interpreter can only count the number of events and
     write coordinates of first 10 received (it is used as a test for now).
-
-### Usage
-
-    make
-    sudo python3 ./app.py
 
 ## Tests
 
