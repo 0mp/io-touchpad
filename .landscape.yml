@@ -11,6 +11,7 @@ ignore-paths
     - app/test/
 python-targets:
     - 3
-# requirements:         
+requirements:
+    - requirements.txt
 strictness: veryhigh
 test-warnings: yes
