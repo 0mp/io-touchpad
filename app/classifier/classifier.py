@@ -45,7 +45,7 @@ class Classifier:
             except FileNotFoundError:
                 print("classifier.py: error: file with the learning model "
                       "doesn't exist; please start the application in the "
-                      "learning mode", file=sys.err)
+                      "learning mode", file=sys.stderr)
                 _thread.interrupt_main()
                 sys.exit(1)
 
