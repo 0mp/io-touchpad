@@ -2,6 +2,7 @@
 """The Classifier class."""
 
 import math
+import operator
 import pickle
 import sys
 import _thread
@@ -79,8 +80,8 @@ class Classifier:
         try:
             file_with_training = open(self.training_set_file_path, 'rb')
         except FileNotFoundError:
-            print("classifier.py: error: file with training set doesn't exist; "
-                  "please start the application in the learning mode",
+            print("classifier.py: error: file with training set doesn't "
+                  "exist; please start the application in the learning mode",
                   file=sys.stderr)
             _thread.interrupt_main()
             sys.exit(1)
@@ -199,36 +200,41 @@ class Classifier:
         """Build paths of the files based on the system bitness.
 
         Chooses different directories depending on the value of the
-        system_bitness.
+        system_bitness. If the bitness is neither 32 nor 64 then the
+        USER_DIR directory will be used.
 
         Args:
             files (list): The names of the files themselves.
             system_bitness (int): The system bitness.
         """
-        file_paths = []
-        for path_num in range(len(files)):
-            file_paths.append("")
-        Classifier._append_to_paths(file_paths, DATA_PATH)
-        if system_bitness == SYSTEM_BITNESS_32:
-            Classifier._append_to_paths(file_paths, HARDCODED_32BIT_DIR)
-        elif system_bitness == SYSTEM_BITNESS_64:
-            Classifier._append_to_paths(file_paths, HARDCODED_64BIT_DIR)
-        else:
-            Classifier._append_to_paths(file_paths, USER_DIR)
+        file_paths = ["" for file in files]
 
-        for path_num in range(len(file_paths)):
-            file_paths[path_num] += files[path_num]
+        file_paths = Classifier._extend_paths(file_paths, DATA_PATH)
+        if system_bitness == SYSTEM_BITNESS_32:
+            file_paths = Classifier._extend_paths(file_paths,
+                                                  HARDCODED_32BIT_DIR)
+        elif system_bitness == SYSTEM_BITNESS_64:
+            file_paths = Classifier._extend_paths(file_paths,
+                                                  HARDCODED_64BIT_DIR)
+        else:
+            file_paths = Classifier._extend_paths(file_paths, USER_DIR)
+
+        file_paths = [operator.add(l, r) for l, r in zip(file_paths, files)]
 
         return file_paths
 
     @staticmethod
-    def _append_to_paths(file_paths, path_element):
-        """Append the path_element to the provided file paths.
+    def _extend_paths(file_paths, path_element):
+        """Extend the file paths with path_element.
+
+        The file paths should end with '/'. Same applies to the path element.
 
         Args:
             file_paths (list): List of file paths which are going to be
                 extended with the path_element.
             path_element (str): The string to be appended to the file_paths.
+
+        Returns:
+            file_paths extended with path_element.
         """
-        for path_num in range(len(file_paths)):
-            file_paths[path_num] += path_element
+        return [operator.add(path, path_element) for path in file_paths]
