@@ -39,14 +39,16 @@ def test_compute_tolerance_distance():
 def test_learn():
     """Test learn with existing resource."""
     classifier = classifier_module.Classifier(True,None)
-    classifier.training_set_file_path = "learn_dat/training-set.dat"
+    classifier.files[classifier_module.TRAINING_SET_FILE] = \
+        "learn_dat/training-set.dat"
     classifier.learn(True)
     assert fabs(classifier.tolerance_distance-1271.9887310656133650) < epsilon
 
 def test_classify():
     """Test classify."""
     classifier = classifier_module.Classifier()
-    classifier.training_set_file_path = "learn_dat/training-set.dat"
+    classifier.files[classifier_module.TRAINING_SET_FILE] = \
+        "learn_dat/training-set.dat"
     classifier.training_set = classifier.load_training_set()
     assert classifier.classify(classifier.training_set[0]) == 1
 
