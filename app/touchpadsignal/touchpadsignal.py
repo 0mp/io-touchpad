@@ -30,12 +30,6 @@ class TouchpadSignal:
         Secondly, fetch_touchpad_event() captures the latest event from the
         touchpad.
         """
-        #  TouchpadSignal.initialize()
-        #  TouchpadSignal.fetch_touchpad_event()
-
-        #  touchpadlib = TouchpadSignal.touchpadlib
-        #  touchpad_event = TouchpadSignal.touchpad_event
-
         touchpad_event = touchpadlib.Touchpadlib.get_event()
 
         self.x_value = touchpad_event['x']
@@ -43,7 +37,7 @@ class TouchpadSignal:
         self.pressure = touchpad_event['pressure']
         seconds = touchpad_event['seconds']
         useconds = touchpad_event['useconds']
-        self.time = self.combine_seconds_and_useconds(seconds, useconds)
+        self.time = self._combine_seconds_and_useconds(seconds, useconds)
 
     def get_x(self):
         """Get the x value."""
@@ -63,13 +57,14 @@ class TouchpadSignal:
 
     def is_stop_signal(self):
         """Check if the signal is a stop signal."""
-        #  @TODO Implement this method. Not in the first iteration.
-        #  We could set condition pressure<1 but for now the only reason
-        #  to end the group is a long break between signals.
+        # @TODO Implement this method. Not in the first iteration.
+        # We could set condition pressure<1 but for now the only reason
+        # to end the group is a long break between signals.
+        # Issue #121.
         return False
 
     def is_raising_finger_signal(self):
-        """ Check if the signal has pressure equal to 0 """
+        """Check if the signal has pressure equal to 0."""
         return self.pressure == 0
 
     def is_proper_signal_of_point(self):
@@ -80,6 +75,6 @@ class TouchpadSignal:
         return self.x_value >= 0 and self.y_value >= 0
 
     @staticmethod
-    def combine_seconds_and_useconds(seconds, useconds):
+    def _combine_seconds_and_useconds(seconds, useconds):
         """Combine seconds and miliseconds into one variable."""
         return seconds + 0.000001 * useconds
