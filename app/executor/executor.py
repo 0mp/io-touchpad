@@ -28,13 +28,13 @@ def execute(command_id):
         otherwise.
     """
     command_id = str(command_id)
-    gasp = databox.get_command_and_arguments(command_id)
-    if gasp is None:
-        print("ERROR: executor: The command related to the detected symbol "
-              "is missing.")
+    command_and_arguments = databox.get_command_and_arguments(command_id)
+    if command_and_arguments is None:
+        print("executor.py: error: the command related to the detected symbol "
+              "is missing")
         return False
     else:
-        command, arguments = gasp
-        DEVNULL = subprocess.DEVNULL
-        subprocess.Popen([command, arguments], stdout=DEVNULL, stderr=DEVNULL)
+        command, arguments = command_and_arguments
+        devnull = subprocess.DEVNULL
+        subprocess.Popen([command, arguments], stdout=devnull, stderr=devnull)
         return True
