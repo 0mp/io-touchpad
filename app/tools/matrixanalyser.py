@@ -22,19 +22,24 @@ package manager.
 import argparse
 import queue
 import time
+import types
 import sys
 import matplotlib.pyplot as plt
 
 sys.path.append(".")
 
-from signalcollection import signalcollection
-from threads import listener
+from threads import listener, application
 from terminationhandler import terminationhandler
 from touchpadlib import touchpadlib
 
 
 class MatrixAnalyser(object):
     """The matrix analyser class.
+
+    The main purpose of this class is to store the information about the
+    touchpad and be able to use them inside save_symbols() after the
+    application.send_points_to_interpreter() function is monkey-patch with the
+    save_symbols() function.
 
     Attributes:
         min_x (int): The minimal value of the x axis on the touchpad.
@@ -68,18 +73,17 @@ class MatrixAnalyser(object):
         self.max_y = specification['max_y'] + tolerance
         self.tolerance = tolerance
 
-    def save_symbols(self, signal_list, show_figure=False):
+    def save_symbols(self, signal_list):
         """Generate figures based on the signal_list.
 
-        It saves generated figures to the FIGURES_PATH. It doesn't
-        save the figure if one of the signal went out of bound or
-        if the signal_list is empty.
+        This is a function which monkey-patches the
+        application.send_points_to_interpreter() function. It saves generated
+        figures to the FIGURES_PATH. It doesn't save the figure if one of the
+        signal went out of bound or if the signal_list is empty.
 
         Args:
             signal_list (list): List of TouchpadSingals received from the
                 touchpad.
-            show_figure (bool): The indicator whether the method should show
-                the figure just after saving it or not.
         """
         if not signal_list:
             return
@@ -111,46 +115,7 @@ class MatrixAnalyser(object):
         plt.scatter(x_coordinates, y_coordinates, s=3)
         name = "figure-" + str(int(time.time())) + '.png'
         plt.savefig(self.FIGURES_PATH + name, dpi=self.FIGURE_DPI)
-        print("Saved as %s. You can draw another symbol now."
-              % (name))
-        if show_figure:
-            plt.show()
-
-    def run_application(self, thread_queue, show_figure=False):
-        """Run the modified version of the application.
-
-        The MatrixAnalyser version of thread/application.py main function.
-
-        Args:
-            thread_queue (Queue): The inter-thread queue to pass signals
-                between the listener and the application.
-            show_figure (bool): The indicator whether the figure should be
-                opened just after saving it or not.
-        """
-        collection = signalcollection.SignalCollection()
-
-        print("Now you can draw symbols on the touchpad. "
-              "(Interrupt to exit.)")
-        while 1:
-            while thread_queue.empty() \
-                    and collection.is_recent_enough(time.time()):
-                pass
-
-            if not collection.is_recent_enough(time.time()):
-                self.save_symbols(collection.as_list(), show_figure)
-                collection.reset()
-
-            if thread_queue.empty():
-                continue
-
-            signal = thread_queue.get()
-
-            if signal.is_stop_signal():
-                self.save_symbols(collection.as_list(), show_figure)
-                collection.reset()
-            elif signal.is_proper_signal_of_point() \
-                    or signal.is_raising_finger_signal():
-                collection.add_and_maintain(signal)
+        #  plt.show()
 
     def _normalize_x(self, x_value):
         normalized_x = x_value - self.min_x
@@ -177,29 +142,27 @@ class MatrixAnalyser(object):
             return normalized_y
 
 
-def _get_configured_parser():
-    """Configure the commandline arguments parser."""
-    description = 'Visualize symbols.'
-    parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('-t', '--tolerance', dest='tolerance', default=0,
-                        help="set a tolerance for the resolution "
-                        "(default: 0)", type=int)
-    parser.add_argument('-s', '--show', dest="show_figure", default=False,
-                        action='store_true',
-                        help='open the generated figure after saving')
-    return parser
-
-
 def main():
     """The main function."""
     terminationhandler.setup()
-    args = _get_configured_parser().parse_args()
+
+    description = 'Visualize symbols.'
+    parser = argparse.ArgumentParser(description=description)
+
+    parser.add_argument('--tolerance', dest='tolerance', default=0,
+                        help="set a tolerance for the resolution "
+                        "(default: 0)")
+    args = parser.parse_args()
+
     touchpad_specification = touchpadlib.Touchpadlib.get_specification()
 
     thread_queue = queue.Queue()
+
     matrix_analyser = MatrixAnalyser(touchpad_specification, args.tolerance)
+    application.send_points_to_interpreter = \
+        types.MethodType(MatrixAnalyser.save_symbols, matrix_analyser)
 
     listener.start(thread_queue)
-    matrix_analyser.run_application(thread_queue, args.show_figure)
+    application.application_thread(thread_queue)
 
 main()
