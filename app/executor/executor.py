@@ -31,7 +31,7 @@ def execute(command_id):
     command_and_arguments = databox.get_command_and_arguments(command_id)
     if command_and_arguments is None:
         print("executor.py: error: the command related to the detected symbol "
-              "is missing")
+              "is missing", file=sys.stderr)
         return False
     else:
         command, arguments = command_and_arguments
