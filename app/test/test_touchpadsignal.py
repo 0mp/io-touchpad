@@ -4,13 +4,20 @@
 
 import pytest
 
-from touchpadsignal import touchpadsignal 
+from touchpadsignal import touchpadsignal
 
-#i am doing it to omit INIT invokation
+# Omit the INIT invokation.
 touchpad = touchpadsignal.TouchpadSignal.__new__(touchpadsignal.TouchpadSignal)
 
-def test_combine_seconds_and_useconds():
-    assert touchpad.combine_seconds_and_useconds(10,234) == 10 + 0.000001 * 234
+def test__combine_seconds_and_useconds():
+    seconds = 10
+    useconds = 234
+    ratio = 0.000001
+
+    result = seconds + useconds * ratio
+    method_result = touchpad._combine_seconds_and_useconds(seconds, useconds)
+
+    assert result == method_result
 
 def test_get_x():
     touchpad.x_value = 5
