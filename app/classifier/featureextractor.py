@@ -5,16 +5,16 @@ class Point:
     """"Class represtenting a point, made to make notation more intuitive."""
 
     def __init__(self, x, y):
-        """Creates a point with two coordinates."""
+        """Create a point with two coordinates."""
         self.x = x
         self.y = y
 
     def flip_vertically(self):
-        """Flips point symmetrically to OX axis."""
+        """Flip point symmetrically to OX axis."""
         self.y = -self.y
 
     def flip_horizontally(self):
-        """Flips point symmetrically to OY axis."""
+        """Flip point symmetrically to OY axis."""
         self.x = -self.x
 
 
@@ -22,19 +22,20 @@ class Line:
     """Line is represented by two points that it connects."""
 
     def __init__(self, point1, point2):
-        """Initializes line as connection of two points."""
+        """Initialize line as connection of two points."""
         self.point1 = point1
         self.point2 = point2
 
     def center_point(self):
-        """Calculates center of mass of a line."""
+        """Calculate center of mass of a line."""
         new_point_x = float(self.point1.x + self.point2.x) / 2
         new_point_y = float(self.point1.y + self.point2.y) / 2
         return Point(new_point_x, new_point_y)
 
     def length(self):
-        """Calculates length of the line."""
-        return hypot(self.point1.x - self.point2.x, self.point1.y - self.point2.y)
+        """Calculate length of the line."""
+        return hypot(self.point1.x - self.point2.x,
+                     self.point1.y - self.point2.y)
 
     def ratio_point(self, ratio):
         """Given ratio point calculates combination of points."""
@@ -52,9 +53,11 @@ class Scaler:
         self.origin = Point(origin.x, origin.y)
 
     def scale_point(self, point):
-        """Moves the point to the place where it would be
+        """Move to point to the destinated place.
+
+        Move the point to the place where it would be
         on properly scaled and moved plane
-        (scales only squarely, not rectangularly).
+        (scale only squarely, not rectangularly).
         """
         scale = 1000
         moved_point = Point(point.x - self.origin.x, point.y - self.origin.y)
@@ -64,19 +67,21 @@ class Scaler:
         if diff_x > diff_y:
             drawn_scale = diff_x
             if diff_x != 0:
-                return Point(moved_point.x / drawn_scale * scale, moved_point.y / drawn_scale * scale)
+                return Point(moved_point.x / drawn_scale * scale,
+                             moved_point.y / drawn_scale * scale)
         else:
             drawn_scale = diff_y
             if diff_y != 0:
-                return Point(moved_point.x / drawn_scale * scale, moved_point.y / drawn_scale * scale)
+                return Point(moved_point.x / drawn_scale * scale,
+                             moved_point.y / drawn_scale * scale)
         return Point(0, 0)
 
 
 class Curve:
-    """Represents only curves made of linear segments."""
+    """Represent only curves made of linear segments."""
 
     def __init__(self, starting_point):
-        """Initiates curve with beginning point."""
+        """Initiate curve with beginning point."""
         self.length = 0
         self.list_of_points = []
         self.colors = []
@@ -86,15 +91,17 @@ class Curve:
         self.center_of_mass = Point(starting_point.x, starting_point.y)
 
     def actualise_center_of_mass(self, point, line_length):
-        """Actualizes center of mass acording to point and length."""
+        """Actualize center of mass acording to point and length."""
         if self.length + line_length > 0:
-            self.center_of_mass.x = (self.center_of_mass.x * self.length + point.x * line_length) / \
+            self.center_of_mass.x = \
+                (self.center_of_mass.x * self.length + point.x * line_length) / \
                                     (self.length + line_length)
-            self.center_of_mass.y = (self.center_of_mass.y * self.length + point.y * line_length) / \
+            self.center_of_mass.y = \
+                (self.center_of_mass.y * self.length + point.y * line_length) / \
                                     (self.length + line_length)
 
     def add_point(self, point):
-        """Adds point to curve taking care of actualising parameters."""
+        """Add point to curve taking care of actualising parameters."""
         last_point = self.list_of_points[len(self.list_of_points) - 1]
 
         self.list_of_points.append(point)
@@ -106,15 +113,15 @@ class Curve:
         self.length += line_length
 
     def hard_add_point(self, point):
-        """Adds point without actualising parameters."""
+        """Add point without actualising parameters."""
         self.list_of_points.append(point)
 
     def attach_colors(self, colors):
-        """Attaches list of colors to the curve."""
+        """Attache list of colors to the curve."""
         self.colors = colors
 
     def add_color(self, color):
-        """Adds color to the list of point of the curve."""
+        """Add color to the list of point of the curve."""
         self.colors.append(color)
 
 
