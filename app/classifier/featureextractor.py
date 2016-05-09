@@ -1,4 +1,4 @@
-from math import pow, sqrt, atan, pi, fabs, hypot
+from math import sqrt, atan, pi, fabs, hypot
 
 
 class Point:
@@ -255,7 +255,10 @@ def draw_new_points(list_of_points):
 
 
 def angle_between_line_and_xaxis(point1, point2):
-    """Xaxis joint to point2, angle on the left side."""
+    """Calculate angle beetwen xaxis and line.
+
+    Xaxis is joint to point2, angle on the left side.
+    """
     if point2.x_cord != point1.x_cord:
         return atan((point2.y_cord - point1.y_cord) /
                     (point2.x_cord - point1.x_cord))
@@ -269,14 +272,14 @@ def dot_product(vector1, vector2):
     return vector1[0] * vector2[0] + vector1[1] + vector2[1]
 
 
-"""""
+"""
 def angle_between_lines(point1, point2, point3):  # point2 is middle point
     vector1 = point1[0] - point2[0], point1[1] - point2[1]
     vector2 = point3[0] - point2[0], point3[1] - point2[1]
     return acos(dot_product(vector1, vector2) /
                 (length_of_line(point1, point2) *
                 length_of_line(point2, point3)))
-"""""
+"""
 
 
 def get_angle_list(curve):
@@ -337,7 +340,8 @@ def filter_points_from_signals(list_of_signals):
         if touchpad_signal.is_proper_signal_of_point():
             points.append(touchpad_signal)
             j = i + 1
-            while j < length and not list_of_signals[j].is_raising_finger_signal()\
+            while j < length and not \
+                    list_of_signals[j].is_raising_finger_signal()\
                     and not list_of_signals[j].is_proper_signal_of_point():
                 j += 1
             if j == length or list_of_signals[j].is_proper_signal_of_point():
