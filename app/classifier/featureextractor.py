@@ -1,5 +1,6 @@
-from math import sqrt, atan, pi, fabs, hypot
-"""Module used to convert list of points from evtest to easily comparable format."""
+"""Module to convert list of points from evtest to easily comparable format."""
+from math import atan, pi, fabs, hypot
+
 
 class Point:
     """"Class represtenting a point, made to make notation more intuitive."""
@@ -328,7 +329,6 @@ def normalize_points(list_of_signal_points, colors):
 
 def filter_points_from_signals(list_of_signals):
     """Take list of points from evtest list of signals."""
-
     points = []
     colors = []
     length = len(list_of_signals)
@@ -350,6 +350,7 @@ def filter_points_from_signals(list_of_signals):
 
 
 def get_new_points(list_of_signals):
+    """Get new normalized list of points for list of signals."""
     list_of_signal_points, colors = filter_points_from_signals(list_of_signals)
     new_curve = normalize_points(list_of_signal_points, colors)
 
@@ -359,7 +360,7 @@ def get_new_points(list_of_signals):
 
 
 def get_features(list_of_signals):
-    """Returnlist of features for list of points taken from evtest."""
+    """Return list of features for list of points taken from evtest."""
     list_of_signal_points, colors = filter_points_from_signals(list_of_signals)
 
     new_curve = normalize_points(list_of_signal_points, colors)
