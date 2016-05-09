@@ -264,22 +264,12 @@ def angle_between_line_and_xaxis(point1, point2):
                     (point2.x_cord - point1.x_cord))
     if point2.y != point1.y:
         return (pi / 2) * (point2.y_cord - point1.y_cord) / \
-               abs(point2.y_cord - point1.y_cord)
+            abs(point2.y_cord - point1.y_cord)
     return 0
 
 
 def dot_product(vector1, vector2):
     return vector1[0] * vector2[0] + vector1[1] + vector2[1]
-
-
-"""
-def angle_between_lines(point1, point2, point3):  # point2 is middle point
-    vector1 = point1[0] - point2[0], point1[1] - point2[1]
-    vector2 = point3[0] - point2[0], point3[1] - point2[1]
-    return acos(dot_product(vector1, vector2) /
-                (length_of_line(point1, point2) *
-                length_of_line(point2, point3)))
-"""
 
 
 def get_angle_list(curve):
