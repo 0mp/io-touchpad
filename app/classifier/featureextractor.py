@@ -1,5 +1,5 @@
 from math import sqrt, atan, pi, fabs, hypot
-
+"""Module used to convert list of points from evtest to easily comparable format."""
 
 class Point:
     """"Class represtenting a point, made to make notation more intuitive."""
@@ -141,14 +141,6 @@ class Curve:
         self.colors.append(color)
 
 
-def center_of_line(point1, point2):
-    return (point1[0] + point2[0]) / 2, (point1[1] + point2[1]) / 2
-
-
-def length_of_line(point1, point2):
-    return sqrt(pow(point1[0] - point2[0], 2) + pow(point1[1] - point2[1], 2))
-
-
 SCALE = 1000
 NUMBER_OF_POINTS = 40
 ANGLE_DOWNSCALE = 28
@@ -156,6 +148,12 @@ COLOR_DOWNSCALE = 2
 
 
 def calculate_border_points(signal_list):
+    """Calculate min a max points of a rectangular border.
+
+    Points are transformed due to the way they correspond to each other,
+    therefore we need to know coordinates of least rectangle,
+    that covers them all.
+    """
     initiated_starting_values = False
     max_point = Point(0, 0)
     min_point = Point(0, 0)
@@ -182,6 +180,7 @@ def calculate_border_points(signal_list):
 
 
 def create_curve(signal_list):
+    """Create curve given signal_list from evtest."""
     if not signal_list:
         return
     curve = Curve(Point(signal_list[0].get_x(), signal_list[0].get_y()))
@@ -194,9 +193,11 @@ def create_curve(signal_list):
 
 
 def create_normalized_curve(curve, min_point, max_point, colors):
-    # creates list of equdistant NUMBER_OF_POINTS points
-    # that represents the same shape as signal_list list
+    """"Create curve that is easily measurable.
 
+    Creates list of equdistant NUMBER_OF_POINTS points
+    that represents the same shape as signal_list list
+    """
     length_of_one_line = curve.length / (NUMBER_OF_POINTS - 1)
     # there is one more point then the number of lines
     # curve_length-1 to be sure there are NUMBER_OF_POINTS points
@@ -244,6 +245,7 @@ def create_normalized_curve(curve, min_point, max_point, colors):
 
 
 def draw_new_points(list_of_points):
+    """Write to file points after normalization."""
     # testing function, to use with matrixanalyser
     list_of_signal_points, colors = filter_points_from_signals(list_of_points)
     new_curve = normalize_points(list_of_signal_points, colors)
@@ -269,11 +271,12 @@ def angle_between_line_and_xaxis(point1, point2):
 
 
 def dot_product(vector1, vector2):
+    """Dot product between two vectors."""
     return vector1[0] * vector2[0] + vector1[1] + vector2[1]
 
 
 def get_angle_list(curve):
-    # gets list of angles between lines and x_axis
+    """Get list of angles between lines and x_axis"""
     feature_list = []
     list_of_points = curve.list_of_points
 
@@ -310,8 +313,11 @@ def join_features(list_of_points, list_of_feature1, colors):
 
 
 def normalize_points(list_of_signal_points, colors):
-    # returns list of points that represents the same
-    # figure but is in our preferred standard
+    """Transform list of signals to easily measurable format.
+
+    returns list of points that represents the same
+    figure but is in our preferred standard
+    """
     min_point, max_point = calculate_border_points(list_of_signal_points)
 
     curve = create_curve(list_of_signal_points)
@@ -321,6 +327,8 @@ def normalize_points(list_of_signal_points, colors):
 
 
 def filter_points_from_signals(list_of_signals):
+    """Take list of points from evtest list of signals."""
+
     points = []
     colors = []
     length = len(list_of_signals)
@@ -351,8 +359,7 @@ def get_new_points(list_of_signals):
 
 
 def get_features(list_of_signals):
-    # returns list of features for list of points taken from evtest
-    # changing format of points to preferred
+    """Returnlist of features for list of points taken from evtest."""
     list_of_signal_points, colors = filter_points_from_signals(list_of_signals)
 
     new_curve = normalize_points(list_of_signal_points, colors)
@@ -370,12 +377,4 @@ def get_features(list_of_signals):
     return feature_list
 
 
-def test_curve_class():
-    point = Point(0, 0)
-    curve = Curve(point)
-    for i in range(1, 40):
-        curve.add_point(Point(i, i))
-    return
 
-#
-# test_curve_class();
