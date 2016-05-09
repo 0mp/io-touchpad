@@ -277,7 +277,7 @@ def dot_product(vector1, vector2):
 
 
 def get_angle_list(curve):
-    """Get list of angles between lines and x_axis"""
+    """Get list of angles between lines and x_axis."""
     feature_list = []
     list_of_points = curve.list_of_points
 
