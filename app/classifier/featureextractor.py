@@ -39,8 +39,10 @@ class Line:
 
     def ratio_point(self, ratio):
         """Given ratio point calculates combination of points."""
-        return Point(self.point1.x_cord * (1 - ratio) + self.point2.x_cord * ratio,
-                     self.point1.y_cord * (1 - ratio) + self.point2.y_cord * ratio)
+        return Point(self.point1.x_cord * (1 - ratio) +
+                     self.point2.x_cord * ratio,
+                     self.point1.y_cord * (1 - ratio) +
+                     self.point2.y_cord * ratio)
 
 
 class Scaler:
@@ -52,15 +54,22 @@ class Scaler:
         self.max_point = Point(max_point.x_cord, max_point.y_cord)
         self.origin = Point(origin.x_cord, origin.y_cord)
 
+    def move_point(self, point):
+        """Move point so that origin is in the center."""
+        moved_point = Point(point.x_cord - self.origin.x_cord,
+                            point.y_cord - self.origin.y_cord)
+        return moved_point
+
     def scale_point(self, point):
-        """Move to point to the destinated place.
+        """Move to point to the destinated scaled place.
 
         Move the point to the place where it would be
         on properly scaled and moved plane
         (scale only squarely, not rectangularly).
         """
         scale = 1000
-        moved_point = Point(point.x - self.origin.x_cord, point.y - self.origin.y_cord)
+        moved_point = self.move_point(point)
+
         diff_x = self.max_point.x_cord - self.min_point.x_cord
         diff_y = self.max_point.y_cord - self.min_point.y_cord
 
@@ -95,13 +104,13 @@ class Curve:
         """Actualize center of mass acording to point and length."""
         if self.length + line_length > 0:
 
-            new_line_mass_x = point.x * line_length
+            new_line_mass_x = point.x_cord * line_length
             whole_mass_x = self.center_of_mass.x_cord * self.length
             self.center_of_mass.x_cord = \
                 (whole_mass_x + new_line_mass_x) / \
                 (self.length + line_length)
 
-            new_line_mass_y = point.y * line_length
+            new_line_mass_y = point.y_cord * line_length
             whole_mass_y = self.center_of_mass.y_cord * self.length
             self.center_of_mass.y_cord = \
                 (whole_mass_y + new_line_mass_y) / \
@@ -183,7 +192,7 @@ def create_curve(signal_list):
 
     return curve
 
-
+"""
 def calculate_center_of_mass_and_length(signal_list):
     curve_length = 0
     whole_mass_x = 0
@@ -228,7 +237,7 @@ def scale_point(point, min_x, min_y, max_x, max_y, origin):
         if diff_y != 0:
             return moved_point[0] / drawn_scale * SCALE, moved_point[1] / drawn_scale * SCALE
     return 0, 0
-
+"""
 
 def create_normalized_curve(curve, min_point, max_point, colors):
     # creates list of equdistant NUMBER_OF_POINTS points that represents the same shape as signal_list list
@@ -266,7 +275,7 @@ def create_normalized_curve(curve, min_point, max_point, colors):
 
     while len(normalized_curve.list_of_points) < NUMBER_OF_POINTS:
         normalized_curve.hard_add_point(curve.list_of_points[len(curve.list_of_points) - 1])
-        normalized_curve.add_color(colors[len(normalized_curve.list_of_points)])
+        normalized_curve.add_color(colors[len(curve.list_of_points) - 1])
 
     normalized_curve.center_of_mass = Point(0, 0)
     normalized_curve.length = curve.length
@@ -284,10 +293,10 @@ def draw_new_points(list_of_points):
 
 
 def get_angle_between_line_and_xaxis(point1, point2):  # xaxis joint to point2, angle on the left side
-    if point2.x != point1.x:
-        return atan((point2.y - point1.y) / (point2.x - point1.x))
+    if point2.x_cord != point1.x_cord:
+        return atan((point2.y_cord - point1.y_cord) / (point2.x_cord - point1.x_cord))
     if point2.y != point1.y:
-        return (pi / 2) * (point2.y - point1.y) / abs(point2.y - point1.y)
+        return (pi / 2) * (point2.y_cord - point1.y_cord) / abs(point2.y_cord - point1.y_cord)
     return 0
 
 
@@ -328,8 +337,8 @@ def join_features(list_of_points, list_of_feature1, colors):  # assumes length o
     feature1_length = len(list_of_feature1)
     for i in range(len(list_of_points)):
         point = list_of_points[i]
-        feature_list.append(point.x)
-        feature_list.append(point.y)
+        feature_list.append(point.x_cord)
+        feature_list.append(point.y_cord)
         feature_list.append(colors[i])
         if i < feature1_length:
             feature_list.append(list_of_feature1[i])
