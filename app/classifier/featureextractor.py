@@ -192,57 +192,13 @@ def create_curve(signal_list):
 
     return curve
 
-"""
-def calculate_center_of_mass_and_length(signal_list):
-    curve_length = 0
-    whole_mass_x = 0
-    whole_mass_y = 0
-    for i in range(len(signal_list) - 1):
-        point = signal_list[i].get_x(), signal_list[i].get_y()
-        next_point = signal_list[i + 1].get_x(), signal_list[i + 1].get_y()
-
-        # curve length
-        length = length_of_line(point, next_point)
-        curve_length += length
-
-        # adding to center of mass parameters
-        center_x, center_y = center_of_line(point, next_point)
-        whole_mass_x += center_x * length
-        whole_mass_y += center_y * length
-
-    if curve_length == 0:
-        return (signal_list[0].get_x(), signal_list[0].get_y()), 0
-
-    center_of_mass = whole_mass_x / curve_length, whole_mass_y / curve_length
-    return center_of_mass, curve_length
-
-
-def ratio_point_of_line(point1, point2, ratio):
-    return point1[0] * (1 - ratio) + point2[0] * ratio, \
-           point1[1] * (1 - ratio) + point2[1] * ratio
-
-
-def scale_point(point, min_x, min_y, max_x, max_y, origin):
-    # moves the point to the place where it would be on properly scaled and moved plane
-    # (scales only squarely, not rectangularly)
-    moved_point = point[0] - origin[0], point[1] - origin[1]
-    diff_x = max_x - min_x
-    diff_y = max_y - min_y
-    if diff_x > diff_y:
-        drawn_scale = diff_x
-        if diff_x != 0:
-            return moved_point[0] / drawn_scale * SCALE, moved_point[1] / drawn_scale * SCALE
-    else:
-        drawn_scale = diff_y
-        if diff_y != 0:
-            return moved_point[0] / drawn_scale * SCALE, moved_point[1] / drawn_scale * SCALE
-    return 0, 0
-"""
 
 def create_normalized_curve(curve, min_point, max_point, colors):
-    # creates list of equdistant NUMBER_OF_POINTS points that represents the same shape as signal_list list
+    # creates list of equdistant NUMBER_OF_POINTS points
+    # that represents the same shape as signal_list list
 
-    length_of_one_line = curve.length / (NUMBER_OF_POINTS - 1)  # there is one more point then the number of lines
+    length_of_one_line = curve.length / (NUMBER_OF_POINTS - 1)
+    # there is one more point then the number of lines
     # curve_length-1 to be sure there are NUMBER_OF_POINTS points
 
     travelled_distance = 0
@@ -258,23 +214,28 @@ def create_normalized_curve(curve, min_point, max_point, colors):
         section = Line(point, next_point)
 
         travelled_distance += section.length()
-        while travelled_distance > length_of_one_line:  # there should be a new points between these two
+        while travelled_distance > length_of_one_line:
+            # there should be a new points between these two
             travelled_distance = (travelled_distance - length_of_one_line)
             overdue = section.length() - travelled_distance
             # section_length = overdue + x
-            # overdue is included in previous line, so x must be added to the new line distance
+            # overdue is included in previous line,
+            # so x must be added to the new line distance
 
             # determining new point coordinates
             ratio = overdue / section.length()
             point = section.ratio_point(ratio)
             scaled_point = scaler.scale_point(point)
-            section = Line(point, next_point)  # in case there should be more points added then one here
+            section = Line(point, next_point)
+            # in case there should be more points added then one here
+
             normalized_curve.hard_add_point(scaled_point)
 
             normalized_curve.add_color(colors[i])
 
     while len(normalized_curve.list_of_points) < NUMBER_OF_POINTS:
-        normalized_curve.hard_add_point(curve.list_of_points[len(curve.list_of_points) - 1])
+        normalized_curve.hard_add_point\
+            (curve.list_of_points[len(curve.list_of_points) - 1])
         normalized_curve.add_color(colors[len(curve.list_of_points) - 1])
 
     normalized_curve.center_of_mass = Point(0, 0)
@@ -292,11 +253,14 @@ def draw_new_points(list_of_points):
             drawing_file.write("%d %d\n" % (point[0], point[1]))
 
 
-def get_angle_between_line_and_xaxis(point1, point2):  # xaxis joint to point2, angle on the left side
+def calc_angle_between_line_and_xaxis(point1, point2):
+    # xaxis joint to point2, angle on the left side
     if point2.x_cord != point1.x_cord:
-        return atan((point2.y_cord - point1.y_cord) / (point2.x_cord - point1.x_cord))
+        return atan((point2.y_cord - point1.y_cord) /
+                    (point2.x_cord - point1.x_cord))
     if point2.y != point1.y:
-        return (pi / 2) * (point2.y_cord - point1.y_cord) / abs(point2.y_cord - point1.y_cord)
+        return (pi / 2) * (point2.y_cord - point1.y_cord) / \
+               abs(point2.y_cord - point1.y_cord)
     return 0
 
 
@@ -321,7 +285,7 @@ def get_angle_list(curve):
     for i in range(len(list_of_points) - 1):
         point = list_of_points[i]
         next_point = list_of_points[i + 1]
-        angle = get_angle_between_line_and_xaxis(point, next_point)
+        angle = calc_angle_between_line_and_xaxis(point, next_point)
 
         # scaling angle
         angle = 2 * angle / pi * (SCALE / ANGLE_DOWNSCALE)
@@ -331,8 +295,10 @@ def get_angle_list(curve):
     return feature_list
 
 
-def join_features(list_of_points, list_of_feature1, colors):  # assumes length of points is the biggest here
-    # join lists of coordinates with features (one feature for now), in order x,y,feature1,x,y,feature1,....
+def join_features(list_of_points, list_of_feature1, colors):
+    # assumes length of points is the biggest here
+    # join lists of coordinates with features (one feature for now),
+    # in order x,y,feature1,x,y,feature1,....
     feature_list = []
     feature1_length = len(list_of_feature1)
     for i in range(len(list_of_points)):
@@ -346,7 +312,8 @@ def join_features(list_of_points, list_of_feature1, colors):  # assumes length o
 
 
 def normalize_points(list_of_signal_points, colors):
-    # returns list of points that represents the same figure but is in our preferred standard
+    # returns list of points that represents the same
+    # figure but is in our preferred standard
     min_point, max_point = calculate_border_points(list_of_signal_points)
 
     curve = create_curve(list_of_signal_points)
@@ -365,8 +332,8 @@ def filter_points_from_signals(list_of_signals):
         if touchpad_signal.is_proper_signal_of_point():
             points.append(touchpad_signal)
             j = i + 1
-            while j < length and not list_of_signals[j].is_raising_finger_signal() and \
-                    not list_of_signals[j].is_proper_signal_of_point():
+            while j < length and not list_of_signals[j].is_raising_finger_signal()\
+                    and not list_of_signals[j].is_proper_signal_of_point():
                 j += 1
             if j == length or list_of_signals[j].is_proper_signal_of_point():
                 colors.append(0)
