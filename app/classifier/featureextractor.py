@@ -234,8 +234,8 @@ def create_normalized_curve(curve, min_point, max_point, colors):
             normalized_curve.add_color(colors[i])
 
     while len(normalized_curve.list_of_points) < NUMBER_OF_POINTS:
-        normalized_curve.hard_add_point\
-            (curve.list_of_points[len(curve.list_of_points) - 1])
+        normalized_curve.hard_add_point(
+            curve.list_of_points[len(curve.list_of_points) - 1])
         normalized_curve.add_color(colors[len(curve.list_of_points) - 1])
 
     normalized_curve.center_of_mass = Point(0, 0)
@@ -248,13 +248,14 @@ def draw_new_points(list_of_points):
     list_of_signal_points, colors = filter_points_from_signals(list_of_points)
     new_curve = normalize_points(list_of_signal_points, colors)
     new_points = new_curve.list_of_points
-    with open('tools/matrixanalyser/data/coordinates2.data', 'w') as drawing_file:
+    with open('tools/matrixanalyser/data/coordinates2.data', 'w') \
+            as drawing_file:
         for point in new_points:
             drawing_file.write("%d %d\n" % (point[0], point[1]))
 
 
-def calc_angle_between_line_and_xaxis(point1, point2):
-    # xaxis joint to point2, angle on the left side
+def angle_between_line_and_xaxis(point1, point2):
+    """Xaxis joint to point2, angle on the left side."""
     if point2.x_cord != point1.x_cord:
         return atan((point2.y_cord - point1.y_cord) /
                     (point2.x_cord - point1.x_cord))
@@ -273,7 +274,8 @@ def angle_between_lines(point1, point2, point3):  # point2 is middle point
     vector1 = point1[0] - point2[0], point1[1] - point2[1]
     vector2 = point3[0] - point2[0], point3[1] - point2[1]
     return acos(dot_product(vector1, vector2) /
-                (length_of_line(point1, point2) * length_of_line(point2, point3)))
+                (length_of_line(point1, point2) *
+                length_of_line(point2, point3)))
 """""
 
 
@@ -285,7 +287,7 @@ def get_angle_list(curve):
     for i in range(len(list_of_points) - 1):
         point = list_of_points[i]
         next_point = list_of_points[i + 1]
-        angle = calc_angle_between_line_and_xaxis(point, next_point)
+        angle = angle_between_line_and_xaxis(point, next_point)
 
         # scaling angle
         angle = 2 * angle / pi * (SCALE / ANGLE_DOWNSCALE)
@@ -296,9 +298,12 @@ def get_angle_list(curve):
 
 
 def join_features(list_of_points, list_of_feature1, colors):
-    # assumes length of points is the biggest here
+    """Function used to join features into single list.
+
+    Assumes length of points is the biggest here
     # join lists of coordinates with features (one feature for now),
     # in order x,y,feature1,x,y,feature1,....
+    """
     feature_list = []
     feature1_length = len(list_of_feature1)
     for i in range(len(list_of_points)):
