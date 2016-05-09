@@ -2,19 +2,19 @@ from math import pow, sqrt, atan, pi, fabs, hypot
 
 
 class Point:
-    # class represtenting a point, made to make notation more intuitive
+    """" class represtenting a point, made to make notation more intuitive """
 
     def __init__(self, x, y):
-        # creates a point with two coordinates
+        """ creates a point with two coordinates """
         self.x = x
         self.y = y
 
     def flip_vertically(self):
-        # flips point symmetrically to OX axis
+        """ flips point symmetrically to OX axis """
         self.y = -self.y
 
     def flip_horizontally(self):
-        # flips point symmetrically to OY axis
+        """ flips point symmetrically to OY axis """
         self.x = -self.x
 
 
