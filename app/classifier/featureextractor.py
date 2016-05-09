@@ -6,16 +6,16 @@ class Point:
 
     def __init__(self, x, y):
         """Create a point with two coordinates."""
-        self.x = x
-        self.y = y
+        self.x_cord = x
+        self.y_cord = y
 
     def flip_vertically(self):
         """Flip point symmetrically to OX axis."""
-        self.y = -self.y
+        self.y_cord = -self.y_cord
 
     def flip_horizontally(self):
         """Flip point symmetrically to OY axis."""
-        self.x = -self.x
+        self.x_cord = -self.x_cord
 
 
 class Line:
@@ -28,19 +28,19 @@ class Line:
 
     def center_point(self):
         """Calculate center of mass of a line."""
-        new_point_x = float(self.point1.x + self.point2.x) / 2
-        new_point_y = float(self.point1.y + self.point2.y) / 2
+        new_point_x = float(self.point1.x_cord + self.point2.x_cord) / 2
+        new_point_y = float(self.point1.y_cord + self.point2.y_cord) / 2
         return Point(new_point_x, new_point_y)
 
     def length(self):
         """Calculate length of the line."""
-        return hypot(self.point1.x - self.point2.x,
-                     self.point1.y - self.point2.y)
+        return hypot(self.point1.x_cord - self.point2.x_cord,
+                     self.point1.y_cord - self.point2.y_cord)
 
     def ratio_point(self, ratio):
         """Given ratio point calculates combination of points."""
-        return Point(self.point1.x * (1 - ratio) + self.point2.x * ratio,
-                     self.point1.y * (1 - ratio) + self.point2.y * ratio)
+        return Point(self.point1.x_cord * (1 - ratio) + self.point2.x_cord * ratio,
+                     self.point1.y_cord * (1 - ratio) + self.point2.y_cord * ratio)
 
 
 class Scaler:
@@ -48,9 +48,9 @@ class Scaler:
 
     def __init__(self, min_point, max_point, origin):
         """Class initiates with center of mass and scale."""
-        self.min_point = Point(min_point.x, min_point.y)
-        self.max_point = Point(max_point.x, max_point.y)
-        self.origin = Point(origin.x, origin.y)
+        self.min_point = Point(min_point.x_cord, min_point.y_cord)
+        self.max_point = Point(max_point.x_cord, max_point.y_cord)
+        self.origin = Point(origin.x_cord, origin.y_cord)
 
     def scale_point(self, point):
         """Move to point to the destinated place.
@@ -60,20 +60,20 @@ class Scaler:
         (scale only squarely, not rectangularly).
         """
         scale = 1000
-        moved_point = Point(point.x - self.origin.x, point.y - self.origin.y)
-        diff_x = self.max_point.x - self.min_point.x
-        diff_y = self.max_point.y - self.min_point.y
+        moved_point = Point(point.x - self.origin.x_cord, point.y - self.origin.y_cord)
+        diff_x = self.max_point.x_cord - self.min_point.x_cord
+        diff_y = self.max_point.y_cord - self.min_point.y_cord
 
         if diff_x > diff_y:
             drawn_scale = diff_x
             if diff_x != 0:
-                return Point(moved_point.x / drawn_scale * scale,
-                             moved_point.y / drawn_scale * scale)
+                return Point(moved_point.x_cord / drawn_scale * scale,
+                             moved_point.y_cord / drawn_scale * scale)
         else:
             drawn_scale = diff_y
             if diff_y != 0:
-                return Point(moved_point.x / drawn_scale * scale,
-                             moved_point.y / drawn_scale * scale)
+                return Point(moved_point.x_cord / drawn_scale * scale,
+                             moved_point.y_cord / drawn_scale * scale)
         return Point(0, 0)
 
 
@@ -88,17 +88,24 @@ class Curve:
 
         self.list_of_points.append(starting_point)
         self.number_of_points = 1  # necessary to calculate new center of mass
-        self.center_of_mass = Point(starting_point.x, starting_point.y)
+        self.center_of_mass = \
+            Point(starting_point.x_cord, starting_point.y_cord)
 
     def actualise_center_of_mass(self, point, line_length):
         """Actualize center of mass acording to point and length."""
         if self.length + line_length > 0:
-            self.center_of_mass.x = \
-                (self.center_of_mass.x * self.length + point.x * line_length) / \
-                                    (self.length + line_length)
-            self.center_of_mass.y = \
-                (self.center_of_mass.y * self.length + point.y * line_length) / \
-                                    (self.length + line_length)
+
+            new_line_mass_x = point.x * line_length
+            whole_mass_x = self.center_of_mass.x_cord * self.length
+            self.center_of_mass.x_cord = \
+                (whole_mass_x + new_line_mass_x) / \
+                (self.length + line_length)
+
+            new_line_mass_y = point.y * line_length
+            whole_mass_y = self.center_of_mass.y_cord * self.length
+            self.center_of_mass.y_cord = \
+                (whole_mass_y + new_line_mass_y) / \
+                (self.length + line_length)
 
     def add_point(self, point):
         """Add point to curve taking care of actualising parameters."""
@@ -147,20 +154,20 @@ def calculate_border_points(signal_list):
         point = Point(signal.get_x(), signal.get_y())
 
         if not initiated_starting_values:
-            min_point.x = point.x
-            min_point.y = point.y
-            max_point.x = point.x
-            max_point.y = point.y
+            min_point.x_cord = point.x_cord
+            min_point.y_cord = point.y_cord
+            max_point.x_cord = point.x_cord
+            max_point.y_cord = point.y_cord
             initiated_starting_values = True
 
-        if point.x < min_point.x:
-            min_point.x = point.x
-        if point.x > max_point.x:
-            max_point.x = point.x
-        if point.y < min_point.y:
-            min_point.y = point.y
-        if point.y > max_point.y:
-            max_point.y = point.y
+        if point.x_cord < min_point.x_cord:
+            min_point.x_cord = point.x_cord
+        if point.x_cord > max_point.x_cord:
+            max_point.x_cord = point.x_cord
+        if point.y_cord < min_point.y_cord:
+            min_point.y_cord = point.y_cord
+        if point.y_cord > max_point.y_cord:
+            max_point.y_cord = point.y_cord
 
     return min_point, max_point
 
