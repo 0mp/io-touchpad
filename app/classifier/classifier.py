@@ -166,7 +166,7 @@ class Classifier:
         models = self.learning_models
         symbol_candidate = models[""].predict([feature_vector])[0]
         distances, _ = models[symbol_candidate] \
-                .kneighbors(np.array([feature_vector]))
+            .kneighbors(np.array([feature_vector]))
         mean_distance = np.mean(distances[0])
         print(mean_distance)
         if mean_distance < self.tolerance_distances[symbol_candidate]:
