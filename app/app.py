@@ -27,7 +27,7 @@ MIN_TRAINING_SIZE = 3
 def _get_configured_parser():
     """Configure the commandline arguments parser."""
     description = 'Teaching your touchpad magic tricks since 2016.'
-    parser = argparse.ArgumentParser(description=description)
+    parser = argparse.ArgumentParser(add_help=True, description=description)
 
     group = parser.add_mutually_exclusive_group()
 
@@ -37,7 +37,7 @@ def _get_configured_parser():
                        'this option triggers the use of the hardcoded '
                        'symbols', choices={'32', '64'})
     group.add_argument('-l', '--learning', dest='training_size',
-                        default=None, metavar='SIZE',
+                       default=None, metavar='SIZE',
                        help='start the application in the learning mode; '
                        'you will be asked to draw a symbol SIZE times; '
                        'SIZE should be at least ' + str(MIN_TRAINING_SIZE),
