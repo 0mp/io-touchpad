@@ -78,19 +78,20 @@ class Classifier:
                 self.learning_models.append(pickle.load(file_with_model))
                 file_with_model.close()
 
-                try:
-                    file_with_tolerance_distance = \
-                        open(Classifier._get_file_name(self.files[DISTANCE_TOLERANCE_FILE], symbol), 'r')
-                except FileNotFoundError:
-                    print("classifier.py: error: file with the tolerance distance "
-                          "doesn't exist; please start the application in the "
-                          "learning mode", file=sys.stderr)
-                    _thread.interrupt_main()
-                    sys.exit(1)
+                if symbol != "":
+                    try:
+                        file_with_tolerance_distance = \
+                            open(Classifier._get_file_name(self.files[DISTANCE_TOLERANCE_FILE], symbol), 'r')
+                    except FileNotFoundError:
+                        print("classifier.py: error: file with the tolerance distance "
+                              "doesn't exist; please start the application in the "
+                              "learning mode", file=sys.stderr)
+                        _thread.interrupt_main()
+                        sys.exit(1)
 
-                self.tolerance_distances.append( \
-                    float(file_with_tolerance_distance.readline()) )
-                file_with_tolerance_distance.close()
+                    self.tolerance_distances.append( \
+                        float(file_with_tolerance_distance.readline()) )
+                    file_with_tolerance_distance.close()
             
             self.learning_models = {sym: mod for sym, mod in zip(self.symbol_list, self.learning_models)}
             self.tolerance_distances = {sym: dist for sym, dist in zip(self.symbol_list, self.tolerance_distances)}
