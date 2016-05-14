@@ -37,7 +37,7 @@ def _get_configured_parser():
                        'this option triggers the use of the hardcoded '
                        'symbols', choices={'32', '64'})
     group.add_argument('-l', '--learning', dest='training_size',
-                       default=None, metavar='SIZE',
+                        default=None, metavar='SIZE',
                        help='start the application in the learning mode; '
                        'you will be asked to draw a symbol SIZE times; '
                        'SIZE should be at least ' + str(MIN_TRAINING_SIZE),
@@ -46,6 +46,11 @@ def _get_configured_parser():
                        default=False, action='store_true',
                        help='repeat the classification on the latest '
                        'user-defined set of drawings')
+
+    group2 = parser.add_mutually_exclusive_group()
+    group2.add_argument('-sym', '--symbol', dest='symbol_name',
+                       default=None, metavar='NAME',
+                       help='name of symbol to learn')
     return parser
 
 
@@ -57,16 +62,20 @@ def main():
     parser = _get_configured_parser()
     args = parser.parse_args()
 
+    training_size = args.training_size
+    learning_mode = training_size is not None
+    symbol_name = args.symbol_name
+
     if args.repeat_classification:
         print('Repeating the classification within the learning process.')
         clsf = classifier.Classifier()
-        clsf.learn(True)
+        clsf.learn(True, symbol_name)
         sys.exit(0)
 
-    training_size = args.training_size
-    learning_mode = training_size is not None
+
 
     if learning_mode:
+        print(args.symbol_name)
         if training_size < 3:
             print('app.py: error: the training size should be at least %d'
                   % (MIN_TRAINING_SIZE), file=sys.stderr)
@@ -81,6 +90,6 @@ def main():
     # Run both threads.
     listener.start(thread_queue)
     application.application_thread(thread_queue, learning_mode, training_size,
-                                   system_bitness)
+                                   system_bitness, symbol_name)
 
 main()
