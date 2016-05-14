@@ -58,7 +58,7 @@ class Classifier:
             file_with_symbols.close()
         except FileNotFoundError:
             self.symbol_list = []
-        
+
 
         # Loading classifying models and distance tolerances
         if not learning_mode:
@@ -92,7 +92,7 @@ class Classifier:
                     self.tolerance_distances.append( \
                         float(file_with_tolerance_distance.readline()) )
                     file_with_tolerance_distance.close()
-            
+
             self.learning_models = {sym: mod for sym, mod in zip(self.symbol_list, self.learning_models)}
             self.tolerance_distances = {sym: dist for sym, dist in zip(self.symbol_list, self.tolerance_distances)}
             self.symbol_list.pop()
@@ -151,24 +151,27 @@ class Classifier:
         print()
 
     def classify(self, signal_list):
-        """Classify the symbol to some item.
-
-        Returns item id or None if similirity is too weak.
+        """Classify the symbol to some an item.
 
         Args:
-            signal_list (TouchpadSignal list): list of touchpad-signal
-            representing the drawn symbol.
+            signal_list (TouchpadSignal list): the list of the signals fetched
+                from a touchpad representing the drawn symbol.
+
+        Returns:
+            The name of the symbol (such as "small_a" for a or "large_k for K
+            if similirity has been found. None otherwise.
         """
         print("classifing...")
         feature_vector = featureextractor.get_features(signal_list)
-        symbol_candidate = self.learning_models[""].predict([feature_vector])[0]
-        distances, _ = self\
-            .learning_models[symbol_candidate].kneighbors(np.array([feature_vector]))
+        models = self.learning_models
+        symbol_candidate = models[""].predict([feature_vector])[0]
+        distances, _ = models[symbol_candidate] \
+                .kneighbors(np.array([feature_vector]))
         mean_distance = np.mean(distances[0])
         print(mean_distance)
         if mean_distance < self.tolerance_distances[symbol_candidate]:
             print(symbol_candidate)
-            return 1
+            return symbol_candidate
         else:
             return None
 
@@ -223,13 +226,13 @@ class Classifier:
                         open(self.files[SYMBOL_LIST_FILE], 'wb')
                     pickle.dump(self.symbol_list, file_with_symbols)
                     file_with_symbols.close()
-                
+
             training_set = self.load_training_set(symbol)
             feature_vectors = []
             for training_element in training_set:
                 feature_vectors.append(featureextractor
                                        .get_features(training_element))
-            sample = np.array(feature_vectors) 
+            sample = np.array(feature_vectors)
             nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree')\
                 .fit(sample)
             file_with_model = open(Classifier._get_file_name(self.files[MODEL_FILE], symbol), 'wb')
@@ -249,7 +252,7 @@ class Classifier:
         file_with_model = open(Classifier._get_file_name(self.files[MODEL_FILE], ""), 'wb')
         pickle.dump(knn_model, file_with_model)
         file_with_model.close()
-            
+
     @staticmethod
     def _get_file_name(template_string, symbol_name):
         """Extend the file paths with path_element.
