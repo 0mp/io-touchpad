@@ -13,7 +13,7 @@ from signalcollection import signalcollection
 
 
 def application_thread(queue, learning_mode=False, training_size=0,
-                       system_bitness=None):
+                       system_bitness=None, symbol_name=None):
     """The application thread function.
 
     Every iteration of the while loop one signal is read from the queue.
@@ -40,7 +40,7 @@ def application_thread(queue, learning_mode=False, training_size=0,
     classifier = classifier_module.Classifier(learning_mode=learning_mode,
                                               system_bitness=system_bitness)
     if learning_mode:
-        classifier.reset_training_set(training_size)
+        classifier.reset_training_set(training_size, symbol_name)
 
     if learning_mode:
         print("Welcome to learning mode.\n"
