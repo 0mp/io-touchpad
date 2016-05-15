@@ -92,6 +92,7 @@ def main():
     #  if learning_mode:
     if args.subcommand == LEARN_SUBCOMMAND:
         print('The symbol name is ' + args.symbol_name + '.')
+        training_size = args.training_size
         if training_size < 3:
             print('app.py: error: the training size should be at least %d'
                   % (MIN_TRAINING_SIZE), file=sys.stderr)
