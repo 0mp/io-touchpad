@@ -9,6 +9,8 @@ Global variables:
         commands.
 """
 
+import errno
+import pickle
 
 class Command(object):
     """A class for storing information about a command.
@@ -61,7 +63,10 @@ class Command(object):
         """
         return command_id in _BUILTIN_COMMANDS
 
-_USER_DEFINED_COMMANDS = {}
+DATA_PATH = 'databox/data/'
+USER_DEFINED_COMMANDS_FILE = 'settings.pickle'
+
+_USER_DEFINED_COMMANDS = None
 _BUILTIN_COMMANDS = {
     '0': Command('echo', 'test'),
     'small_a': Command('x-www-browser', ''),
@@ -73,6 +78,15 @@ _BUILTIN_COMMANDS = {
 }
 
 
+def bind_symbol_with_command(symbol, command='touch', command_arguments=None):
+    check_and_load_commands()
+    if command == 'touch' and command_arguments is None:
+        command_arguments = '/tmp/created_by_' + symbol
+
+    _USER_DEFINED_COMMANDS[symbol] = Command(Command, command_arguments);
+    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+        pickle.dump(_USER_DEFINED_COMMANDS, handle)
+
 def get_command_and_arguments(command_id):
     """Return the command and arguements related to command_id.
 
@@ -83,9 +97,22 @@ def get_command_and_arguments(command_id):
         The shell command and the arguments related to command_id if the id
         was found. None otherwise.
     """
+    check_and_load_commands()
     if Command.is_builtin(command_id):
         return _BUILTIN_COMMANDS[command_id].get_command_and_argument()
     elif Command.is_user_defined(command_id):
         return _USER_DEFINED_COMMANDS[command_id].get_command_and_argument()
     else:
         return None
+
+def check_and_load_commands():
+    global _USER_DEFINED_COMMANDS
+    if _USER_DEFINED_COMMANDS is None:
+        try:
+            handle = open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'rb')
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                _USER_DEFINED_COMMANDS = {}
+        else:
+                _USER_DEFINED_COMMANDS = pickle.load(handle)
+
