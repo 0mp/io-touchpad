@@ -31,7 +31,7 @@ def _get_configured_parser():
 
     group = parser.add_mutually_exclusive_group()
 
-    group.add_argument('-s', '--system', dest='system_bitness',
+    group.add_argument('-b', '--bitness', dest='system_bitness',
                        default=None, metavar='BITS',
                        help='set the bitness of your operation system; '
                        'this option triggers the use of the hardcoded '
@@ -48,9 +48,9 @@ def _get_configured_parser():
                        'user-defined set of drawings')
 
     group2 = parser.add_mutually_exclusive_group()
-    group2.add_argument('-sym', '--symbol', dest='symbol_name',
+    group2.add_argument('-s', '--symbol', dest='symbol_name',
                        default=None, metavar='NAME',
-                       help='name of symbol to learn')
+                       help='name of symbol to learn in the learning mode')
     return parser
 
 
