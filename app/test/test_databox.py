@@ -3,7 +3,6 @@
 """Tests for touchpad signal"""
 
 import pytest
-import os
 from databox import databox
 
 command = databox.Command("echo","ok")
@@ -34,7 +33,7 @@ def test_get_command_and_argument(tmpdir):
 def test_is_user_defined():
     """Test user defined commands."""
     databox._check_and_load_commands()
-    assert command.is_user_defined('not_in') == False
+    assert command.is_user_defined('not_in') is False
 
 def test_is_builtin():
     """Test the function which tests if the symbol is a builtin.
@@ -42,14 +41,14 @@ def test_is_builtin():
     False test is invoked with unexisting ID.
     """
     databox._check_and_load_commands()
-    assert command.is_builtin(DEFAULT_SYMBOL) == True
-    assert command.is_builtin('not_in') == False
+    assert command.is_builtin(DEFAULT_SYMBOL) is True
+    assert command.is_builtin('not_in') is False
 
 def test_get_command_and_arguments(tmpdir):
     """Test the module function for getting commands."""
     tmpdir.mkdir(DATABOX_DIR)
     tmpdir.mkdir(DATA_DIR)
-    assert databox.get_command_and_arguments('not_in') == None
+    assert databox.get_command_and_arguments('not_in') is None
 
     comm, argument = databox.get_command_and_arguments(DEFAULT_SYMBOL)
 
@@ -57,6 +56,7 @@ def test_get_command_and_arguments(tmpdir):
     assert argument == DEFAULT_ARGUMENTS
 
 def test__check_and_load_commands(tmpdir):
+    """Test _check_and_load_commands()."""
     tmpdir.mkdir(DATABOX_DIR)
     tmpdir.mkdir(DATA_DIR)
     try:
