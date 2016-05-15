@@ -66,8 +66,8 @@ class Classifier:
             self.symbol_list.append("")
             for symbol in self.symbol_list:
                 try:
-                    file_with_model = \
-                        open(Classifier._get_file_path(self.files[MODEL_FILE], symbol), 'rb')
+                    model_path = Classifier._get_file_path(self.files[MODEL_FILE], symbol)
+                    file_with_model = open(model_path, 'rb')
                 except FileNotFoundError:
                     print("classifier.py: error: file with the learning model "
                           "doesn't exist; please start the application in the "
@@ -80,11 +80,11 @@ class Classifier:
 
                 if symbol != "":
                     try:
-                        file_with_tolerance_distance_path = \
+                        tolerance_distance_path = \
                             Classifier._get_file_path( \
                                 self.files[DISTANCE_TOLERANCE_FILE], symbol)
                         file_with_tolerance_distance = \
-                            open(file_with_tolerance_distance_path, 'r')
+                            open(tolerance_distance_path, 'r')
                     except FileNotFoundError:
                         print("classifier.py: error: file with the tolerance distance "
                               "doesn't exist; please start the application in the "
@@ -111,8 +111,9 @@ class Classifier:
     def load_training_set(self, symbol):
         """Load and return traning symbols from file."""
         try:
-            file_with_training = \
-                open(Classifier._get_file_path(self.files[TRAINING_SET_FILE], symbol), 'rb')
+            training_path = Classifier.\
+                _get_file_path(self.files[TRAINING_SET_FILE], symbol)
+            file_with_training = open(training_path, 'rb')
         except FileNotFoundError:
             print("classifier.py: error: file with training set doesn't "
                   "exist; please start the application in the learning mode",
@@ -213,7 +214,7 @@ class Classifier:
         file_with_tolerance_distance.close()
 
     def save_training_set(self, symbol):
-        """Saves the drawn training set to file.
+        """Save the drawn training set to file.
 
         Args:
             str (str): Name of the symbol.
@@ -254,8 +255,7 @@ class Classifier:
         self.compute_tolerance_distance(sample, symbol)
 
     def learn_all_symbols_together(self):
-        """Builds file of knn-classifier model of all training elements."""
-        print("all")
+        """Build file of knn-classifier model of all training elements."""
         feature_vectors = []
         results = []
         for sym in self.symbol_list:
@@ -296,7 +296,7 @@ class Classifier:
 
     @staticmethod
     def _get_file_path(template_string, symbol_name):
-        """Transforms the file path template to real path according to given symbol.
+        """Transform the file path template to real path according to given symbol.
 
         Args:
             template_string (str): Template of file path.
