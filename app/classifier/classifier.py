@@ -43,7 +43,6 @@ class Classifier:
                 (with respect to the provided bitness) will be recogniezed
                 instead of the user defined symbols.
         """
-
         file_names = [DISTANCE_TOLERANCE_FILE, MODEL_FILE, TRAINING_SET_FILE, SYMBOL_LIST_FILE]
         file_paths = Classifier._build_paths(file_names, system_bitness)
         #  (self.distance_tolerance_file_path, self.model_file_path,
@@ -205,10 +204,10 @@ class Classifier:
         critical_index = math.ceil(0.8 * len(means)) - 1
         tolerance_distance = means[critical_index] * 1.3
         print("tolerance distance: %.16f" % (tolerance_distance))
-        file_with_tolerance_distance_path = \
+        tolerance_distance_path = \
             Classifier._get_file_path(self.files[DISTANCE_TOLERANCE_FILE], symbol)
         file_with_tolerance_distance = \
-            open(file_with_tolerance_distance_path, 'w')
+            open(tolerance_distance_path, 'w')
         file_with_tolerance_distance.write("%.16f\n"
                                            % (tolerance_distance))
         file_with_tolerance_distance.close()
@@ -290,7 +289,6 @@ class Classifier:
 
         print("learning all together...")
         self.learn_all_symbols_together()
-
 
     @staticmethod
     def _get_file_path(template_string, symbol_name):
