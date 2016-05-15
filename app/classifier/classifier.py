@@ -13,6 +13,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KNeighborsClassifier
 
 from classifier import featureextractor
+from databox import databox
 
 from string import Template
 
@@ -251,6 +252,8 @@ class Classifier:
         file_with_model = open(model_path, 'wb')
         pickle.dump(nbrs, file_with_model)
         file_with_model.close()
+
+        databox.bind_symbol_with_command(symbol)
         self.compute_tolerance_distance(sample, symbol)
 
     def learn_all_symbols_together(self):
@@ -281,7 +284,7 @@ class Classifier:
             load_from_file (bool): True - if training has to be load from file,
                           False - new training-set written in self.training_set
                                  that has to be learned and then saved to file.
-            symbol (str): Name of the symbol, 
+            symbol (str): Name of the symbol,
                           or empty string if general learning wanted.
         """
         if symbol is None:
@@ -294,6 +297,7 @@ class Classifier:
 
         print("learning all together...")
         self.learn_all_symbols_together()
+
 
     @staticmethod
     def _get_file_path(template_string, symbol_name):
