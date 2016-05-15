@@ -65,7 +65,8 @@ class Classifier:
             self.symbol_list.append("")
             for symbol in self.symbol_list:
                 try:
-                    model_path = Classifier._get_file_path(self.files[MODEL_FILE], symbol)
+                    model_path = Classifier.\
+                        _get_file_path(self.files[MODEL_FILE], symbol)
                     file_with_model = open(model_path, 'rb')
                 except FileNotFoundError:
                     print("classifier.py: error: file with the learning model "
@@ -85,9 +86,9 @@ class Classifier:
                         file_with_tolerance_distance = \
                             open(tolerance_distance_path, 'r')
                     except FileNotFoundError:
-                        print("classifier.py: error: file with the tolerance distance "
-                              "doesn't exist; please start the application in the "
-                              "learning mode", file=sys.stderr)
+                        print("classifier.py: error: file with the tolerance "
+                              "distance doesn't exist; please start the "
+                              "application in the learning mode", file=sys.stderr)
                         _thread.interrupt_main()
                         sys.exit(1)
 
@@ -245,8 +246,9 @@ class Classifier:
         sample = np.array(feature_vectors)
         nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree')\
             .fit(sample)
-        file_with_model = \
-            open(Classifier._get_file_path(self.files[MODEL_FILE], symbol), 'wb')
+        model_path = Classifier.\
+            _get_file_path(self.files[MODEL_FILE], symbol)
+        file_with_model = open(model_path, 'wb')
         pickle.dump(nbrs, file_with_model)
         file_with_model.close()
         self.compute_tolerance_distance(sample, symbol)
@@ -262,9 +264,11 @@ class Classifier:
                 open(file_with_training_path, 'rb')
             training_set = pickle.load(file_with_training)
             for training_element in training_set:
-                feature_vectors.append(featureextractor.get_features(training_element))
+                feature_vector = featureextractor.get_features(training_element)
+                feature_vectors.append(feature_vector)
                 results.append(sym)
-        knn_model = KNeighborsClassifier(n_neighbors=5).fit(feature_vectors, results)
+        knn_model = KNeighborsClassifier(n_neighbors=5).\
+            fit(feature_vectors, results)
         file_with_model = \
             open(Classifier._get_file_path(self.files[MODEL_FILE], ""), 'wb')
         pickle.dump(knn_model, file_with_model)
@@ -277,7 +281,8 @@ class Classifier:
             load_from_file (bool): True - if training has to be load from file,
                           False - new training-set written in self.training_set
                                  that has to be learned and then saved to file.
-            symbol (str): Name of symbol, or empty string if general learning wanted.
+            symbol (str): Name of the symbol, 
+                          or empty string if general learning wanted.
         """
         if symbol is None:
             symbol = ""
@@ -292,7 +297,7 @@ class Classifier:
 
     @staticmethod
     def _get_file_path(template_string, symbol_name):
-        """Transform the file path template to real path according to given symbol.
+        """Transform the file path template to real path.
 
         Args:
             template_string (str): Template of file path.
