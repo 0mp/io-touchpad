@@ -219,7 +219,6 @@ class Classifier:
         Args:
             str (str): Name of the symbol.
         """
-        print("save", symbol)
         file_with_training_path = \
             Classifier._get_file_path(self.files[TRAINING_SET_FILE], symbol)
         file_with_training = \
@@ -239,7 +238,6 @@ class Classifier:
         Args:
             symbol (str): Name of the symbol.
         """
-        print("one", symbol)
         training_set = self.load_training_set(symbol)
         feature_vectors = []
         for training_element in training_set:
