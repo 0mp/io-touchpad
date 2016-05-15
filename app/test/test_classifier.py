@@ -42,7 +42,7 @@ def test_learn():
     classifier.files[classifier_module.TRAINING_SET_FILE] = \
         "learn_dat/training-set.dat"
     classifier.learn(True)
-    assert fabs(classifier.tolerance_distance-1271.9887310656133650) < epsilon
+    assert fabs(classifier.tolerance_distance-1307.8332671020116) < epsilon
 
 def test_classify():
     """Test classify."""
