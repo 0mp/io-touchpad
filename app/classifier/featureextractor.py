@@ -1,6 +1,24 @@
 """Module to convert list of points from evtest to easily comparable format."""
 from math import atan, pi, fabs, hypot
 
+class Signal_test:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+
+    def is_proper_signal_of_point(self):
+        return True
+
+    def is_raising_finger_signal(self):
+        return False
+
 
 class Point:
     """"Class represtenting a point, made to make notation more intuitive."""
@@ -17,6 +35,12 @@ class Point:
     def flip_horizontally(self):
         """Flip point symmetrically to OY axis."""
         self.x_cord = -self.x_cord
+
+    def equals(self, point2):
+        """Compares itself to point2"""
+        if self.x_cord != point2.x_cord or self.y_cord != point2.y_cord:
+            return False
+        return True
 
 
 class Line:
@@ -143,7 +167,7 @@ class Curve:
 
 
 SCALE = 1000
-NUMBER_OF_POINTS = 40
+NUMBER_OF_POINTS = 41
 ANGLE_DOWNSCALE = 28
 COLOR_DOWNSCALE = 2
 
@@ -236,8 +260,9 @@ def create_normalized_curve(curve, min_point, max_point, colors):
             normalized_curve.add_color(colors[i])
 
     while len(normalized_curve.list_of_points) < NUMBER_OF_POINTS:
-        normalized_curve.hard_add_point(
+        scaled_point = scaler.scale_point(
             curve.list_of_points[len(curve.list_of_points) - 1])
+        normalized_curve.hard_add_point(scaled_point)
         normalized_curve.add_color(colors[len(curve.list_of_points) - 1])
 
     normalized_curve.center_of_mass = Point(0, 0)
@@ -328,7 +353,7 @@ def normalize_points(list_of_signal_points, colors):
 
 
 def filter_points_from_signals(list_of_signals):
-    """Take list of points from evtest list of signals."""
+    """Remove unproper signals from evtest"""
     points = []
     colors = []
     length = len(list_of_signals)
@@ -354,7 +379,6 @@ def get_new_points(list_of_signals):
     list_of_signal_points, colors = filter_points_from_signals(list_of_signals)
     new_curve = normalize_points(list_of_signal_points, colors)
 
-    # temporary todo:zmienić
     new_points = new_curve.list_of_points
     return new_points
 
@@ -365,8 +389,6 @@ def get_features(list_of_signals):
 
     new_curve = normalize_points(list_of_signal_points, colors)
 
-    # temporary
-    # todo: change it to objet oriented
     new_points = new_curve.list_of_points
     new_colors = new_curve.colors
 
@@ -377,5 +399,15 @@ def get_features(list_of_signals):
     feature_list = join_features(new_points, angles, new_colors)
     return feature_list
 
+def main():
+    signal_list = []
+    for i in range(0, 20):
+        signal_list.append(Signal_test(i, i))
 
+    features = get_features(signal_list)
+    for feature in features:
+        print(feature)
 
+    return 2
+
+main()
