@@ -30,10 +30,12 @@ def test_get_command_and_argument(tmpdir):
     assert comm == "echo"
     assert argument == "ok"
 
+
 def test_is_user_defined():
     """Test user defined commands."""
     databox._check_and_load_commands()
     assert command.is_user_defined('not_in') is False
+
 
 def test_is_builtin():
     """Test the function which tests if the symbol is a builtin.
@@ -43,6 +45,7 @@ def test_is_builtin():
     databox._check_and_load_commands()
     assert command.is_builtin(DEFAULT_SYMBOL) is True
     assert command.is_builtin('not_in') is False
+
 
 def test_get_command_and_arguments(tmpdir):
     """Test the module function for getting commands."""
@@ -55,6 +58,7 @@ def test_get_command_and_arguments(tmpdir):
     assert comm == DEFAULT_COMMAND
     assert argument == DEFAULT_ARGUMENTS
 
+
 def test__check_and_load_commands(tmpdir):
     """Test _check_and_load_commands()."""
     tmpdir.mkdir(DATABOX_DIR)
@@ -64,5 +68,5 @@ def test__check_and_load_commands(tmpdir):
     except:
         assert 0
 
-# def test_bind_symbol_with_command(tmpdir):
 
+# def test_bind_symbol_with_command(tmpdir):
