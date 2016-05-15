@@ -31,7 +31,7 @@ def test_get_command_and_argument(tmpdir):
     assert comm == "echo"
     assert argument == "ok"
 
-def test_is_user_defined(tmpdir):
+def test_is_user_defined():
     """Test user defined commands."""
     databox._check_and_load_commands()
     assert command.is_user_defined('not_in') == False
