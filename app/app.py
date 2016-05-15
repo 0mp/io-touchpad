@@ -68,11 +68,9 @@ def main():
 
     if args.repeat_classification:
         print('Repeating the classification within the learning process.')
-        clsf = classifier.Classifier()
+        clsf = classifier.Classifier(True)
         clsf.learn(True, symbol_name)
         sys.exit(0)
-
-
 
     if learning_mode:
         print(args.symbol_name)

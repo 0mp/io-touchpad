@@ -59,7 +59,6 @@ class Classifier:
         except FileNotFoundError:
             self.symbol_list = []
 
-
         # Loading classifying models and distance tolerances
         if not learning_mode:
             self.learning_models = []
@@ -67,7 +66,8 @@ class Classifier:
             self.symbol_list.append("")
             for symbol in self.symbol_list:
                 try:
-                    file_with_model = open(Classifier._get_file_name(self.files[MODEL_FILE], symbol), 'rb')
+                    file_with_model = \
+                        open(Classifier._get_file_path(self.files[MODEL_FILE], symbol), 'rb')
                 except FileNotFoundError:
                     print("classifier.py: error: file with the learning model "
                           "doesn't exist; please start the application in the "
@@ -80,8 +80,11 @@ class Classifier:
 
                 if symbol != "":
                     try:
+                        file_with_tolerance_distance_path = \
+                            Classifier._get_file_path( \
+                                self.files[DISTANCE_TOLERANCE_FILE], symbol)
                         file_with_tolerance_distance = \
-                            open(Classifier._get_file_name(self.files[DISTANCE_TOLERANCE_FILE], symbol), 'r')
+                            open(file_with_tolerance_distance_path, 'r')
                     except FileNotFoundError:
                         print("classifier.py: error: file with the tolerance distance "
                               "doesn't exist; please start the application in the "
@@ -90,11 +93,13 @@ class Classifier:
                         sys.exit(1)
 
                     self.tolerance_distances.append( \
-                        float(file_with_tolerance_distance.readline()) )
+                        float(file_with_tolerance_distance.readline()))
                     file_with_tolerance_distance.close()
 
-            self.learning_models = {sym: mod for sym, mod in zip(self.symbol_list, self.learning_models)}
-            self.tolerance_distances = {sym: dist for sym, dist in zip(self.symbol_list, self.tolerance_distances)}
+            self.learning_models = \
+                {sym: mod for sym, mod in zip(self.symbol_list, self.learning_models)}
+            self.tolerance_distances = \
+                {sym: dist for sym, dist in zip(self.symbol_list, self.tolerance_distances)}
             self.symbol_list.pop()
 
         # Variables for learning-mode.
@@ -106,7 +111,8 @@ class Classifier:
     def load_training_set(self, symbol):
         """Load and return traning symbols from file."""
         try:
-            file_with_training = open(Classifier._get_file_name(self.files[TRAINING_SET_FILE], symbol), 'rb')
+            file_with_training = \
+                open(Classifier._get_file_path(self.files[TRAINING_SET_FILE], symbol), 'rb')
         except FileNotFoundError:
             print("classifier.py: error: file with training set doesn't "
                   "exist; please start the application in the learning mode",
@@ -196,13 +202,76 @@ class Classifier:
             means.append(np.mean(row))
         means.sort()
         critical_index = math.ceil(0.8 * len(means)) - 1
-        self.tolerance_distance = means[critical_index] * 1.3
-        print("tolerance distance: %.16f" % (self.tolerance_distance))
+        tolerance_distance = means[critical_index] * 1.3
+        print("tolerance distance: %.16f" % (tolerance_distance))
+        file_with_tolerance_distance_path = \
+            Classifier._get_file_path(self.files[DISTANCE_TOLERANCE_FILE], symbol)
         file_with_tolerance_distance = \
-            open(Classifier._get_file_name(self.files[DISTANCE_TOLERANCE_FILE], symbol), 'w')
+            open(file_with_tolerance_distance_path, 'w')
         file_with_tolerance_distance.write("%.16f\n"
-                                           % (self.tolerance_distance))
+                                           % (tolerance_distance))
         file_with_tolerance_distance.close()
+
+    def save_training_set(self, symbol):
+        """Saves the drawn training set to file.
+
+        Args:
+            str (str): Name of the symbol.
+        """
+        print("save", symbol)
+        file_with_training_path = \
+            Classifier._get_file_path(self.files[TRAINING_SET_FILE], symbol)
+        file_with_training = \
+            open(file_with_training_path, 'wb')
+        pickle.dump(self.training_set, file_with_training)
+        file_with_training.close()
+        if symbol not in self.symbol_list:
+            self.symbol_list.append(symbol)
+            file_with_symbols = \
+                open(self.files[SYMBOL_LIST_FILE], 'wb')
+            pickle.dump(self.symbol_list, file_with_symbols)
+            file_with_symbols.close()
+
+    def learn_one_symbol(self, symbol):
+        """Learn given symbol basing on training set from file.
+
+        Args:
+            symbol (str): Name of the symbol.
+        """
+        print("one", symbol)
+        training_set = self.load_training_set(symbol)
+        feature_vectors = []
+        for training_element in training_set:
+            feature_vectors.append(featureextractor
+                                   .get_features(training_element))
+        sample = np.array(feature_vectors)
+        nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree')\
+            .fit(sample)
+        file_with_model = \
+            open(Classifier._get_file_path(self.files[MODEL_FILE], symbol), 'wb')
+        pickle.dump(nbrs, file_with_model)
+        file_with_model.close()
+        self.compute_tolerance_distance(sample, symbol)
+
+    def learn_all_symbols_together(self):
+        """Builds file of knn-classifier model of all training elements."""
+        print("all")
+        feature_vectors = []
+        results = []
+        for sym in self.symbol_list:
+            file_with_training_path = \
+                Classifier._get_file_path(self.files[TRAINING_SET_FILE], sym)
+            file_with_training = \
+                open(file_with_training_path, 'rb')
+            training_set = pickle.load(file_with_training)
+            for training_element in training_set:
+                feature_vectors.append(featureextractor.get_features(training_element))
+                results.append(sym)
+        knn_model = KNeighborsClassifier(n_neighbors=5).fit(feature_vectors, results)
+        file_with_model = \
+            open(Classifier._get_file_path(self.files[MODEL_FILE], ""), 'wb')
+        pickle.dump(knn_model, file_with_model)
+        file_with_model.close()
 
     def learn(self, load_from_file, symbol=""):
         """Learn basing on traing-set.
@@ -211,63 +280,36 @@ class Classifier:
             load_from_file (bool): True - if training has to be load from file,
                           False - new training-set written in self.training_set
                                  that has to be learned and then saved to file.
+            symbol (str): Name of symbol, or empty string if general learning wanted.
         """
         if symbol is None:
             symbol = ""
         if symbol != "":
             print("learning", symbol, "symbol...")
             if not load_from_file:
-                file_with_training = open(Classifier._get_file_name(self.files[TRAINING_SET_FILE], symbol), 'wb')
-                pickle.dump(self.training_set, file_with_training)
-                file_with_training.close()
-                if symbol not in self.symbol_list:
-                    self.symbol_list.append(symbol)
-                    file_with_symbols = \
-                        open(self.files[SYMBOL_LIST_FILE], 'wb')
-                    pickle.dump(self.symbol_list, file_with_symbols)
-                    file_with_symbols.close()
+                self.save_training_set(symbol)
+            self.learn_one_symbol(symbol)
 
-            training_set = self.load_training_set(symbol)
-            feature_vectors = []
-            for training_element in training_set:
-                feature_vectors.append(featureextractor
-                                       .get_features(training_element))
-            sample = np.array(feature_vectors)
-            nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree')\
-                .fit(sample)
-            file_with_model = open(Classifier._get_file_name(self.files[MODEL_FILE], symbol), 'wb')
-            pickle.dump(nbrs, file_with_model)
-            file_with_model.close()
-            self.compute_tolerance_distance(sample, symbol)
         print("learning all together...")
-        feature_vectors = []
-        results = []
-        for sym in self.symbol_list:
-            file_with_training = open(Classifier._get_file_name(self.files[TRAINING_SET_FILE], sym), 'rb')
-            training_set = pickle.load(file_with_training)
-            for training_element in training_set:
-                feature_vectors.append(featureextractor.get_features(training_element))
-                results.append(sym)
-        knn_model = KNeighborsClassifier(n_neighbors=5).fit(feature_vectors, results)
-        file_with_model = open(Classifier._get_file_name(self.files[MODEL_FILE], ""), 'wb')
-        pickle.dump(knn_model, file_with_model)
-        file_with_model.close()
+        self.learn_all_symbols_together()
+
 
     @staticmethod
-    def _get_file_name(template_string, symbol_name):
-        """Extend the file paths with path_element.
-
-        The file paths should end with '/'. Same applies to the path element.
+    def _get_file_path(template_string, symbol_name):
+        """Transforms the file path template to real path according to given symbol.
 
         Args:
-            file_paths (list): List of file paths which are going to be
-                extended with the path_element.
-            path_element (str): The string to be appended to the file_paths.
+            template_string (str): Template of file path.
+            symbol_name (str): Name of symbol or empty string for general files.
 
         Returns:
-            file_paths extended with path_element.
+            Actual file path.
         """
-        return Template(template_string).substitute(sym=symbol_name)
+        subst = "_" + symbol_name
+        if symbol_name == "":
+            subst = ""
+
+        return Template(template_string).substitute(sym=subst)
 
     @staticmethod
     def _build_paths(files, system_bitness):
