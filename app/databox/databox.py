@@ -83,7 +83,7 @@ def bind_symbol_with_command(symbol, command='touch', command_arguments=None):
     if command == 'touch' and command_arguments is None:
         command_arguments = '/tmp/created_by_' + symbol
 
-    _USER_DEFINED_COMMANDS[symbol] = Command(Command, command_arguments);
+    _USER_DEFINED_COMMANDS[symbol] = Command(command, command_arguments);
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
         pickle.dump(_USER_DEFINED_COMMANDS, handle)
 
