@@ -64,7 +64,12 @@ class Command(object):
 _USER_DEFINED_COMMANDS = {}
 _BUILTIN_COMMANDS = {
     '0': Command('echo', 'test'),
-    '1': Command('x-www-browser', ''),
+    'small_a': Command('x-www-browser', ''),
+    'large_k': Command('touch', '/tmp/created-by-large-k'),
+    'small_gamma': Command('touch', '/tmp/created-by-small_gamma'),
+    'small_gamma_with_dot': Command('touch',
+                                    '/tmp/created-by-small_gamma_with_dot'),
+    'large_sigma': Command('touch', '/tmp/created-by-large_sigma'),
 }
 
 

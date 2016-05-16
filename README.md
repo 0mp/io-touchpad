@@ -22,13 +22,13 @@
 
         cd app
 
-2. Undertake a learning session with a trainig size of SIZE:
+2. Undertake a learning session with a trainig size of SIZE for a symbol named SYMBOL:
 
-        sudo ./app.py --learning SIZE
+        sudo ./app.py learn SIZE SYMBOL
 
 3. Use the app. (Hopefully, it will recognise your symbol.)
 
-        sudo ./app
+        sudo ./app run user
 
 If you want to use predefined, hardcoded symbols run `./app --help` for more information.
 
