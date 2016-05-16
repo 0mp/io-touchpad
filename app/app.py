@@ -21,7 +21,7 @@ from threads import application
 from threads import listener
 from classifier import classifier as classifier_module
 
-MIN_TRAINING_SIZE = 3
+MIN_TRAINING_SIZE = 5
 
 RUN_SUBCOMMAND = 'run'
 RUN_USER_MODE = 'user'
