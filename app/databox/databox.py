@@ -9,6 +9,9 @@ Global variables:
         commands.
 """
 
+import errno
+import pickle
+
 
 class Command(object):
     """A class for storing information about a command.
@@ -61,11 +64,39 @@ class Command(object):
         """
         return command_id in _BUILTIN_COMMANDS
 
-_USER_DEFINED_COMMANDS = {}
+DATA_PATH = 'databox/data/'
+USER_DEFINED_COMMANDS_FILE = 'settings.pickle'
+
+_USER_DEFINED_COMMANDS = None
 _BUILTIN_COMMANDS = {
     '0': Command('echo', 'test'),
-    '1': Command('x-www-browser', ''),
+    'small_a': Command('x-www-browser', ''),
+    'large_k': Command('touch', '/tmp/created-by-large-k'),
+    'small_gamma': Command('touch', '/tmp/created-by-small_gamma'),
+    'small_gamma_with_dot': Command('touch',
+                                    '/tmp/created-by-small_gamma_with_dot'),
+    'large_sigma': Command('touch', '/tmp/created-by-large_sigma'),
 }
+
+
+def bind_symbol_with_command(symbol, command='touch', command_arguments=None):
+    """Bind the symbol's name with the provided command.
+
+    The default command is touch and the command_arguments will be set to
+    '/tmp/created_by_' + symbol.
+
+    Args:
+        symbol (str): The symbol's name.
+        command (str): The shell command to be bound with the symbol.
+        command_arguments (str): The arguments for the command.
+    """
+    _check_and_load_commands()
+    if command == 'touch' and command_arguments is None:
+        command_arguments = '/tmp/created_by_' + symbol
+
+    _USER_DEFINED_COMMANDS[symbol] = Command(command, command_arguments)
+    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+        pickle.dump(_USER_DEFINED_COMMANDS, handle)
 
 
 def get_command_and_arguments(command_id):
@@ -78,9 +109,27 @@ def get_command_and_arguments(command_id):
         The shell command and the arguments related to command_id if the id
         was found. None otherwise.
     """
+    _check_and_load_commands()
     if Command.is_builtin(command_id):
         return _BUILTIN_COMMANDS[command_id].get_command_and_argument()
     elif Command.is_user_defined(command_id):
         return _USER_DEFINED_COMMANDS[command_id].get_command_and_argument()
     else:
         return None
+
+
+def _check_and_load_commands():
+    """Check whether the user-defined commands've been loaded and load them.
+
+    It uses the global statement but it is unavoidable in the current
+    architecture of the databox module.
+    """
+    global _USER_DEFINED_COMMANDS
+    if _USER_DEFINED_COMMANDS is None:
+        try:
+            handle = open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'rb')
+        except OSError as file_not_found_error:
+            if file_not_found_error.errno == errno.ENOENT:
+                _USER_DEFINED_COMMANDS = {}
+        else:
+            _USER_DEFINED_COMMANDS = pickle.load(handle)

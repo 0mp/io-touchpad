@@ -7,6 +7,7 @@ APP_CLASSIFIER_DATA_DIR=app/classifier/data
 APP_CLASSIFIER_DATA_USERDEFINED=app/classifier/data/user-defined
 APP_CLASSIFIER_DATA_32=app/classifier/data/32
 APP_CLASSIFIER_DATA_64=app/classifier/data/64
+APP_DATABOX_DATA=app/databox/data
 APP_TOOLS_DATA=app/tools/data
 APP_TOOLS_DATA_MATRIXANALYSER=app/tools/data/matrixanalyser
 APP_TOOLS_DATA_MATRIXANALYSER_FIGURES_DIR=app/tools/data/matrixanalyser/figures
@@ -17,6 +18,7 @@ OBJ_DIR=obj
 SRC_DIR=src
 
 DATA_DIRS=$(APP_CLASSIFIER_DATA_USERDEFINED) \
+		  $(APP_DATABOX_DATA) \
 		  $(APP_TOOLS_DATA) \
 		  $(APP_TOOLS_DATA_MATRIXANALYSER) \
 		  $(APP_TOOLS_DATA_MATRIXANALYSER_FIGURES_DIR)
@@ -51,7 +53,7 @@ $(OBJ_DIR)/touchpadlib.o: $(SRC_DIR)/touchpadlib.c $(SRC_DIR)/touchpadlib.h
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/touchpadlib.o $(SRC_DIR)/touchpadlib.c
 
 
-clean: cleanpychache clean_classifier_data_userdefined
+clean: cleanpychache cleanuserdefined
 	-@rm $(OBJ_DIR)/*.o $(LIB_DIR)/touchpadlib.so $(SILENCE_ERROR_MESSAGES)
 	-@rmdir $(LIB_DIR) $(SILENCE_ERROR_MESSAGES)
 	-@rmdir $(OBJ_DIR) $(SILENCE_ERROR_MESSAGES)
@@ -60,8 +62,9 @@ clean: cleanpychache clean_classifier_data_userdefined
 cleanpychache: $(wildcard $(APP_DIR)/*/$(PYCACHE_DIR))
 	@rm -rf $^ || true
 
-clean_classifier_data_userdefined: $(APP_CLASSIFIER_DATA_USERDEFINED)
+cleanuserdefined: $(APP_CLASSIFIER_DATA_USERDEFINED)
 	@rm -f $(APP_CLASSIFIER_DATA_USERDEFINED)/* || true
+	@rm -f $(APP_DATABOX_DATA)/* || true
 
 
 

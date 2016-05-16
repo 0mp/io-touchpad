@@ -9,5 +9,6 @@ def test_execute():
 
     with unexisting ID and test ID
     """
-    assert executor.execute(-1) == False
-    assert executor.execute(0) == True
+    default_symbol = 'small_a'
+    assert executor.execute('-1') is False
+    assert executor.execute(default_symbol) is True
