@@ -178,7 +178,10 @@ def main():
         sys.exit(0)
     elif args.subcommand == DELETE_SUBCOMMAND:
         print('app.py: warning: the command line argument "delete SYMBOL" '
-              'has not been implemented yet', file=sys.stderr)
+              'has been implemented but for now it only removes symbol'
+              'from the classifier', file=sys.stderr)
+        classifier = classifier_module.Classifier(True)
+        classifier.delete_symbol(args.symbol_name)
         sys.exit(0)
     elif args.subcommand == LIST_SUBCOMMAND:
         print('app.py: warning: the command line argument "list" '
