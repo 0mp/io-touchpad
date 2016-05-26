@@ -20,6 +20,7 @@ from terminationhandler import terminationhandler
 from threads import application
 from threads import listener
 from classifier import classifier as classifier_module
+from databox import databox
 
 MIN_TRAINING_SIZE = 5
 
@@ -173,6 +174,7 @@ def main():
             print('app.py: error: the training size should be at least %d'
                   % (MIN_TRAINING_SIZE), file=sys.stderr)
             sys.exit(1)
+        databox.bind_symbol_with_command(symbol, args.shell_command)
         _start_threads(learning_mode=True, symbol_name=args.symbol_name,
                        training_size=args.training_size)
     elif args.subcommand == DEACTIVATE_SUBCOMMAND:
@@ -180,19 +182,15 @@ def main():
               'has not been implemented yet', file=sys.stderr)
         sys.exit(0)
     elif args.subcommand == DELETE_SUBCOMMAND:
-        print('app.py: warning: the command line argument "delete SYMBOL" '
-              'has been implemented but for now it only removes symbol'
-              'from the classifier', file=sys.stderr)
         classifier = classifier_module.Classifier(True)
         classifier.delete_symbols([args.symbol_name])
+        databox.delete_symbols([args.symbol_name])
         sys.exit(0)
     elif args.subcommand == LIST_SUBCOMMAND:
-        print('app.py: warning: the command line argument "list" '
-              'has not been implemented yet', file=sys.stderr)
+        databox.print_commands()
         sys.exit(0)
     elif args.subcommand == MODIFY_SUBCOMMAND:
-        print('app.py: warning: the command line argument "modify SYMBOL '
-              'COMMAND" has not been implemented yet', file=sys.stderr)
+        
         sys.exit(0)
     elif args.subcommand == REPEAT_SUBCOMMAND:
         print('Repeating the classification within the learning process.')

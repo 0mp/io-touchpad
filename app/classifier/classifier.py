@@ -14,7 +14,6 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KNeighborsClassifier
 
 from classifier import featureextractor
-from databox import databox
 
 from string import Template
 
@@ -253,7 +252,6 @@ class Classifier:
         file_with_model = open(model_path, 'wb')
         pickle.dump(nbrs, file_with_model)
         file_with_model.close()
-        databox.bind_symbol_with_command(symbol)
         self.compute_tolerance_distance(sample, symbol)
 
     def learn_all_symbols_together(self):
@@ -310,7 +308,7 @@ class Classifier:
         self.learn_all_symbols_together()
 
     def delete_symbol(self, symbol):
-        print('removing', symbol, 'symbol')
+        print('removing symbol', symbol, 'from classifier...')
         if symbol in self.symbol_list:
             self.symbol_list.remove(symbol)
             file_with_symbols = \
@@ -338,7 +336,7 @@ class Classifier:
         """Delete symbols from classifier with all files related.
 
         Args:
-            symbol (str): Name of the symbol.
+            symbols (list of str): Symbols to delete names.
         """
         if not symbols_to_delete:
             symbols_to_delete = self.symbol_list

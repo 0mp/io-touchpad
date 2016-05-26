@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 """Data of the application.
 This module stores information about symbols and related commands.
 Global variables:
@@ -69,6 +69,34 @@ _BUILTIN_COMMANDS = {
     'large_sigma': Command('touch', '/tmp/created-by-large_sigma'),
 }
 
+def print_commands():
+    global _USER_DEFINED_COMMANDS
+    _check_and_load_commands()
+    for sym in _USER_DEFINED_COMMANDS:
+        command = _USER_DEFINED_COMMANDS[sym]
+        print(sym, command.command, command.arguments)
+    
+def delete_symbols(symbols):
+    """Delete commands related to given symbols.
+    if symbols is empty list, then remove all symbols.
+    Args:
+        symbols (list of str): Symbols to remove names.
+    """
+    global _USER_DEFINED_COMMANDS
+    if not symbols:
+        print('removing all symbols from databox...')
+        _USER_DEFINED_COMMANDS = {}
+    elif symbols: 
+        _check_and_load_commands()
+        for symbol in symbols:
+            print('removing symbol', symbol, 'from databox')
+            if symbol in _USER_DEFINED_COMMANDS:
+                del _USER_DEFINED_COMMANDS[symbol]
+            else:
+                print('warning: symbol', symbol, 'is not present in databox')
+    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+        pickle.dump(_USER_DEFINED_COMMANDS, handle)
+         
 
 def bind_symbol_with_command(symbol, command='touch', command_arguments=None):
     """Bind the symbol's name with the provided command.
