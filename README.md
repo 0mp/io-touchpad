@@ -24,7 +24,7 @@
 
 2. Undertake a learning session with a trainig size of SIZE for a symbol named SYMBOL:
 
-        sudo ./app.py learn SIZE SYMBOL
+        sudo ./app.py add SIZE SYMBOL
 
 3. Use the app. (Hopefully, it will recognise your symbol.)
 
