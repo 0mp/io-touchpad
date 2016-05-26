@@ -310,11 +310,7 @@ class Classifier:
         self.learn_all_symbols_together()
 
     def delete_symbol(self, symbol):
-        """Delete symbol from classifier with all files related.
-
-        Args:
-            symbol (str): Name of the symbol.
-        """
+        print('removing', symbol, 'symbol')
         if symbol in self.symbol_list:
             self.symbol_list.remove(symbol)
             file_with_symbols = \
@@ -324,7 +320,7 @@ class Classifier:
         else:
             print('warning: symbol', symbol, 'is not present in classifier database')
 
-        print("removing files...")
+        print("removing related files...")
         try:
             os.remove(Classifier._get_file_path(self.files[TRAINING_SET_FILE], symbol))
         except OSError:
@@ -337,6 +333,19 @@ class Classifier:
             os.remove(Classifier._get_file_path(self.files[DISTANCE_TOLERANCE_FILE], symbol))
         except OSError:
             pass
+
+    def delete_symbols(self, symbols_to_delete):
+        """Delete symbols from classifier with all files related.
+
+        Args:
+            symbol (str): Name of the symbol.
+        """
+        if not symbols_to_delete:
+            symbols_to_delete = self.symbol_list
+        
+        if symbols_to_delete:
+            for symbol in symbols_to_delete:
+                self.delete_symbol(symbol)
 
         print("learning all together...")
         self.learn_all_symbols_together()

@@ -181,7 +181,7 @@ def main():
               'has been implemented but for now it only removes symbol'
               'from the classifier', file=sys.stderr)
         classifier = classifier_module.Classifier(True)
-        classifier.delete_symbol(args.symbol_name)
+        classifier.delete_symbols([args.symbol_name])
         sys.exit(0)
     elif args.subcommand == LIST_SUBCOMMAND:
         print('app.py: warning: the command line argument "list" '
