@@ -80,7 +80,7 @@ _BUILTIN_COMMANDS = {
 
 
 def is_active(symbol):
-    """Check if given symbol is active
+    """Check if given symbol is active.
 
     if there is no such symbol in database, returns false"""
     global _USER_DEFINED_COMMANDS
@@ -103,6 +103,7 @@ def print_commands():
         command = _USER_DEFINED_COMMANDS[sym]
         print(sym, command.to_str())
 
+
 def _set_status(symbols, status):
     global _USER_DEFINED_COMMANDS
     _check_and_load_commands()
@@ -116,14 +117,17 @@ def _set_status(symbols, status):
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
         pickle.dump(_USER_DEFINED_COMMANDS, handle)
 
+
 def activate(symbols):
     """Change the status of given symbols on active."""
     _set_status(symbols, 'active')
 
+
 def deactivate(symbols):
     """Change the status of given symbols on inactive."""
     _set_status(symbols, 'inactive')
-    
+
+
 def delete_symbols(symbols):
     """Delete commands related to given symbols.
     if symbols is empty list, then remove all symbols.

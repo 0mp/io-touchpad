@@ -19,8 +19,9 @@ PRE_TEST_FILE = 'settings.pickle_pretest'
 
 # Setup
 
+
 def setup_function(test_function):
-    """Copy file with prepared data for test"""
+    """Copy file with prepared data for test."""
     shutil.copy2(DATA_DIR + PRE_TEST_FILE, DATA_DIR + 'settings.pickle')
 
 
@@ -41,6 +42,7 @@ def test_get_command_and_argument(tmpdir):
 
 def test_is_user_defined():
     """Test user defined commands."""
+
     databox._check_and_load_commands()
     assert command.is_user_defined('not_in') is False
 
@@ -50,6 +52,7 @@ def test_is_builtin():
 
     False test is invoked with unexisting ID.
     """
+
     databox._check_and_load_commands()
     assert command.is_builtin(DEFAULT_SYMBOL) is True
     assert command.is_builtin('not_in') is False
@@ -78,13 +81,13 @@ def test__check_and_load_commands(tmpdir):
 
 
 def test_is_active():
-    """Test checking if symbol is active"""
+    """Test checking if symbol is active."""
     assert databox.is_active('test')
     assert not databox.is_active('shouldntbe')
 
 
 def test_single_deactivate():
-    """Test deactivating symbol"""
+    """Test deactivating symbol."""
     symbols = ['test']
 
     databox.deactivate(symbols)
@@ -92,7 +95,7 @@ def test_single_deactivate():
 
 
 def test_single_activate():
-    """Test activating symbol"""
+    """Test activating symbol."""
 
     symbols = ['test']
 
@@ -101,7 +104,7 @@ def test_single_activate():
 
 
 def test_active_and_deactivate():
-    """Test all possibilities with 3 symbols"""
+    """Test all possibilities with 3 symbols."""
 
     deactivation_symbols = ['test', 'test2', 'test3']
     for i in range(1, 8):
@@ -111,7 +114,10 @@ def test_active_and_deactivate():
         assert not databox.is_active('test3')
 
         to_activate = []
-        #activate only selected ones
+
+        #
+        # activate only selected ones
+
         if i % 2 == 1:
             to_activate.append('test')
 
@@ -122,14 +128,15 @@ def test_active_and_deactivate():
             to_activate.append('test3')
 
         databox.activate(to_activate)
-        #independently check if everything is okay
+
+        # independently check if everything is okay
         if i % 2 == 1:
             assert databox.is_active('test')
         else:
             assert not databox.is_active('test')
 
         if i % 4 >= 2:
-            assert  databox.is_active('test2')
+            assert databox.is_active('test2')
         else:
             assert not databox.is_active('test2')
 
@@ -140,7 +147,7 @@ def test_active_and_deactivate():
 
 
 def test_bind_symbol_with_command():
-    """Test binding symbol with command"""
+    """Test binding symbol with command."""
 
     test = ['test']
     databox.activate(test)
@@ -158,7 +165,7 @@ def test_bind_symbol_with_command():
 
 
 def test_delete_symbols():
-    """Test deleting symbols"""
+    """Test deleting symbols."""
 
     symbols_to_delete = ['test', 'test3']
 
@@ -173,8 +180,3 @@ def test_delete_symbols():
     temp = ['test3']
     databox.activate(temp)
     assert not databox.is_active('test3')
-
-
-
-
-
