@@ -82,6 +82,8 @@ _BUILTIN_COMMANDS = {
 def is_active(symbol):
     """Check if given symbol is active.
 
+    Args:
+        symbol (str): name of the symbol which we check to be active
     if there is no such symbol in database, returns false"""
     _check_and_load_commands()
 
@@ -90,7 +92,7 @@ def is_active(symbol):
     elif Command.is_user_defined(symbol):
         command = _USER_DEFINED_COMMANDS[symbol]
     else:
-        return None
+        return False
 
     return command.is_active()
 
