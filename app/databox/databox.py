@@ -78,12 +78,32 @@ _BUILTIN_COMMANDS = {
     'large_sigma': Command('touch', '/tmp/created-by-large_sigma'),
 }
 
+
+def is_active(symbol):
+    """Check if given symbol is active.
+
+    Args:
+        symbol (str): name of the symbol which we check to be active
+    if there is no such symbol in database, returns false"""
+    _check_and_load_commands()
+
+    if Command.is_builtin(symbol):
+        command = _BUILTIN_COMMANDS[symbol]
+    elif Command.is_user_defined(symbol):
+        command = _USER_DEFINED_COMMANDS[symbol]
+    else:
+        return False
+
+    return command.is_active()
+
+
 def print_commands():
     global _USER_DEFINED_COMMANDS
     _check_and_load_commands()
     for sym in _USER_DEFINED_COMMANDS:
         command = _USER_DEFINED_COMMANDS[sym]
         print(sym, command.to_str())
+
 
 def _set_status(symbols, status):
     global _USER_DEFINED_COMMANDS
@@ -98,14 +118,17 @@ def _set_status(symbols, status):
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
         pickle.dump(_USER_DEFINED_COMMANDS, handle)
 
+
 def activate(symbols):
     """Change the status of given symbols on active."""
     _set_status(symbols, 'active')
 
+
 def deactivate(symbols):
     """Change the status of given symbols on inactive."""
     _set_status(symbols, 'inactive')
-    
+
+
 def delete_symbols(symbols):
     """Delete commands related to given symbols.
     if symbols is empty list, then remove all symbols.
