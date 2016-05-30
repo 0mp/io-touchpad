@@ -18,6 +18,7 @@ from terminationhandler import terminationhandler
 from threads import application
 from threads import listener
 from classifier import classifier as classifier_module
+from databox import databox
 
 MIN_TRAINING_SIZE = 5
 
@@ -182,10 +183,7 @@ def _activate(args):
     Args:
         args (dict): Parsed command line arguments.
     """
-    print('app.py: warning: the command line argument "activate" '
-          'has not been implemented yet', file=sys.stderr)
-    print('app.py: notice: the list of selected symbols: '
-          '{0}'.format(args.symbols), file=sys.stderr)
+    databox.activate(args.symbols)
     sys.exit(0)
 
 
@@ -200,6 +198,8 @@ def _add(args):
         print('app.py: error: the training size should be at least '
               '{0}'.format(MIN_TRAINING_SIZE), file=sys.stderr)
         sys.exit(1)
+    databox.bind_symbol_with_command(args.symbol_name, args.shell_command,
+                                     args.shell_command_arguments)
     _start_threads(learning_mode=True, symbol_name=args.symbol_name,
                    training_size=args.training_size)
 
@@ -210,10 +210,7 @@ def _deactivate(args):
     Args:
         args (dict): Parsed command line arguments.
     """
-    print('app.py: warning: the command line argument "deactivate" '
-          'has not been implemented yet', file=sys.stderr)
-    print('app.py: notice: the list of selected symbols: '
-          '{0}'.format(args.symbols), file=sys.stderr)
+    databox.deactivate(args.symbols)
     sys.exit(0)
 
 
@@ -223,17 +220,15 @@ def _delete(args):
     Args:
         args (dict): Parsed command line arguments.
     """
-    print('app.py: warning: the command line argument "delete" '
-          'has not been implemented yet', file=sys.stderr)
-    print('app.py: notice: the list of selected symbols: '
-          '{0}'.format(args.symbols), file=sys.stderr)
+    classifier = classifier_module.Classifier(learning_mode=True)
+    classifier.delete_symbols(args.symbols)
+    databox.delete_symbols(args.symbols)
     sys.exit(0)
 
 
 def _list():
     """Wrap up the list subcommand to make main() less complex."""
-    print('app.py: warning: the command line argument "list" '
-          'has not been implemented yet', file=sys.stderr)
+    databox.print_commands()
     sys.exit(0)
 
 
@@ -243,13 +238,8 @@ def _modify(args):
     Args:
         args (dict): Parsed command line arguments.
     """
-    print('app.py: warning: the command line argument "modify" has not '
-          'been implemented yet', file=sys.stderr)
-    print('app.py: notice: parsed command line arguments: symbol name: '
-          '"{0}", command: "{1}", arguments: "{2}"'
-          ''.format(args.symbol_name, args.shell_command,
-                    args.shell_command_arguments),
-          file=sys.stderr)
+    databox.bind_symbol_with_command(args.symbol_name, args.shell_command,
+                                     args.shell_command_arguments)
     sys.exit(0)
 
 
@@ -259,22 +249,23 @@ def _redraw(args):
     Args:
         args (dict): Parsed command line arguments.
     """
-    print('app.py: warning: the command line argument "redraw" has not '
-          'been implemented yet', file=sys.stderr)
-    print('app.py: notice: parsed command line arguments: symbol name: '
-          '"{0}", training size: "{1}"'
-          ''.format(args.symbol_name, args.training_size), file=sys.stderr)
+    if args.training_size < MIN_TRAINING_SIZE:
+        print('app.py: error: the training size should be at least '
+              '{0}'.format(MIN_TRAINING_SIZE), file=sys.stderr)
+        sys.exit(1)
+    _start_threads(learning_mode=True, symbol_name=args.symbol_name,
+                   training_size=args.training_size)
     sys.exit(0)
 
 
 def _repeat(args):
-    """Wrap up the repeate subcommand to make main() less complex.
+    """Wrap up the repeat subcommand to make main() less complex.
 
     Args:
         args (dict): Parsed command line arguments.
     """
-    print('Repeating the classification within the learning process.')
-    classifier = classifier_module.Classifier(True)
+    print('Repeating the learning process from traning-set file.')
+    classifier = classifier_module.Classifier(learning_mode=True)
     classifier.learn(True, args.symbol_name)
     sys.exit(0)
 

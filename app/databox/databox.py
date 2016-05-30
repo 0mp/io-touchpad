@@ -18,7 +18,7 @@ class Command(object):
     new features to the executor module a lot easier.
     """
 
-    def __init__(self, command, arguments):
+    def __init__(self, command, arguments, status='active'):
         """Constructor.
         Args:
             command (str): The shell command like 'gedit' or 'echo linhchibui'.
@@ -27,6 +27,15 @@ class Command(object):
         """
         self.command = command
         self.arguments = arguments
+        self.status = status
+
+    def to_str(self):
+        """Return string containing information about the command."""
+        return self.command + ' ' + self.arguments + ' ' + self.status
+
+    def is_active(self):
+        """Return True if the command is active. False othervise."""
+        return self.status == 'active'
 
     def get_command_and_argument(self):
         """Return the command and the arguments.
@@ -70,6 +79,69 @@ _BUILTIN_COMMANDS = {
 }
 
 
+def print_commands():
+    """Print command list for user."""
+    global _USER_DEFINED_COMMANDS
+    _check_and_load_commands()
+    for sym in _USER_DEFINED_COMMANDS:
+        command = _USER_DEFINED_COMMANDS[sym]
+        print(sym, command.to_str())
+
+
+def _set_status(symbols, status):
+    """Set status of command on active or inactive.
+    Args:
+        symbols (list of str): Symbols to set status.
+        status ('active'/'inactive'): New status."""
+    global _USER_DEFINED_COMMANDS
+    _check_and_load_commands()
+    if not symbols:
+        symbols = _USER_DEFINED_COMMANDS
+    for symbol in symbols:
+        if symbol in _USER_DEFINED_COMMANDS:
+            _USER_DEFINED_COMMANDS[symbol].status = status
+        else:
+            print('warning: symbol', symbol, 'is not present in databox')
+    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+        pickle.dump(_USER_DEFINED_COMMANDS, handle)
+
+
+def activate(symbols):
+    """Change the status of given symbols on active.
+    Args:
+        symbols (list of str): Symbols to set status."""
+    _set_status(symbols, 'active')
+
+
+def deactivate(symbols):
+    """Change the status of given symbols on inactive.
+    Args:
+        symbols (list of str): Symbols to set status."""
+    _set_status(symbols, 'inactive')
+
+
+def delete_symbols(symbols):
+    """Delete commands related to given symbols.
+    if symbols is empty list, then remove all symbols.
+    Args:
+        symbols (list of str): Symbols to remove names.
+    """
+    global _USER_DEFINED_COMMANDS
+    if not symbols:
+        print('removing all symbols from databox...')
+        _USER_DEFINED_COMMANDS = {}
+    elif symbols:
+        _check_and_load_commands()
+        for symbol in symbols:
+            print('removing symbol', symbol, 'from databox')
+            if symbol in _USER_DEFINED_COMMANDS:
+                del _USER_DEFINED_COMMANDS[symbol]
+            else:
+                print('warning: symbol', symbol, 'is not present in databox')
+    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+        pickle.dump(_USER_DEFINED_COMMANDS, handle)
+
+
 def bind_symbol_with_command(symbol, command='touch', command_arguments=None):
     """Bind the symbol's name with the provided command.
     The default command is touch and the command_arguments will be set to
@@ -79,6 +151,7 @@ def bind_symbol_with_command(symbol, command='touch', command_arguments=None):
         command (str): The shell command to be bound with the symbol.
         command_arguments (str): The arguments for the command.
     """
+    global _USER_DEFINED_COMMANDS
     _check_and_load_commands()
     if command == 'touch' and command_arguments is None:
         command_arguments = '/tmp/created_by_' + symbol
@@ -94,13 +167,17 @@ def get_command_and_arguments(command_id):
         command_id (str): The id of the command.
     Returns:
         The shell command and the arguments related to command_id if the id
-        was found. None otherwise.
+        was found and is active. None otherwise.
     """
     _check_and_load_commands()
     if Command.is_builtin(command_id):
-        return _BUILTIN_COMMANDS[command_id].get_command_and_argument()
+        command = _BUILTIN_COMMANDS[command_id]
     elif Command.is_user_defined(command_id):
-        return _USER_DEFINED_COMMANDS[command_id].get_command_and_argument()
+        command = _USER_DEFINED_COMMANDS[command_id]
+    else:
+        command = None
+    if command is not None and command.is_active():
+        return command.get_command_and_argument()
     else:
         return None
 
