@@ -27,6 +27,8 @@ ACTIVATE_SUBCOMMAND = 'activate'
 ADD_SUBCOMMAND = 'add'
 DEACTIVATE_SUBCOMMAND = 'deactivate'
 DELETE_SUBCOMMAND = 'delete'
+EXPORT_SUBCOMMAND = 'export'
+IMPORT_SUBCOMMAND = 'import'
 LIST_SUBCOMMAND = 'list'
 MODIFY_SUBCOMMAND = 'modify'
 REDRAW_SUBCOMMAND = 'redraw'
@@ -98,6 +100,21 @@ def _get_configured_parser():
                        const=[], help='delete all the existing symbols')
     group.add_argument('-s', '--select', dest='symbols', nargs="+",
                        help='delete all the selected symbols')
+
+    # The export subcommand section.
+    subparser = subparsers.add_parser(EXPORT_SUBCOMMAND, help='export current '
+                                      'settings to a file')
+    subparser.add_argument(dest='settings_name',
+                           default="settings", metavar='FILE', help='the '
+                           'name of the file where the settings will be '
+                           'exported')
+
+    # The import subcommand section.
+    subparser = subparsers.add_parser(IMPORT_SUBCOMMAND, help='import '
+                                      'settings from a file')
+    subparser.add_argument(dest='settings_name',
+                           default="settings", metavar='FILE', help='the name '
+                           'of the file to import settings from')
 
     # The list subcommand section.
     subparsers.add_parser(LIST_SUBCOMMAND, help='list all the available '
@@ -232,6 +249,28 @@ def _delete(args):
     sys.exit(0)
 
 
+def _export_settings(args):
+    """Wrap up the export subcommand to make main() less complex.
+
+    Args:
+        args (dict): Parsed command line arguments.
+    """
+    classifier = classifier_module.Classifier(learning_mode=False)
+    classifier.export_files(args.settings_name)
+    databox.export_settings(args.settings_name)
+
+
+def _import_settings(args):
+    """Wrap up the import subcommand to make main() less complex.
+
+    Args:
+        args (dict): Parsed command line arguments.
+    """
+    classifier = classifier_module.Classifier(learning_mode=True)
+    classifier.import_files(args.settings_name)
+    databox.import_settings(args.settings_name)
+
+
 def _list():
     """Wrap up the list subcommand to make main() less complex."""
     databox.print_commands()
@@ -305,6 +344,10 @@ def main():
         _deactivate(args)
     elif args.subcommand == DELETE_SUBCOMMAND:
         _delete(args)
+    elif args.subcommand == EXPORT_SUBCOMMAND:
+        _export_settings(args)
+    elif args.subcommand == IMPORT_SUBCOMMAND:
+        _import_settings(args)
     elif args.subcommand == LIST_SUBCOMMAND:
         _list()
     elif args.subcommand == MODIFY_SUBCOMMAND:

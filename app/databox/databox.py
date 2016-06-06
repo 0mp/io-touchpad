@@ -9,6 +9,7 @@ Global variables:
 
 import errno
 import pickle
+import os
 
 
 class Command(object):
@@ -66,6 +67,7 @@ class Command(object):
 
 DATA_PATH = 'databox/data/'
 USER_DEFINED_COMMANDS_FILE = 'settings.pickle'
+EXPORT_PATH = 'databox/exports/'
 
 _USER_DEFINED_COMMANDS = None
 _BUILTIN_COMMANDS = {
@@ -121,6 +123,7 @@ def _set_status(symbols, status):
     for symbol in symbols:
         if symbol in _USER_DEFINED_COMMANDS:
             _USER_DEFINED_COMMANDS[symbol].status = status
+            print('the status of ', symbol, 'has been set on ', status)
         else:
             print('warning: symbol', symbol, 'is not present in databox')
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
@@ -161,6 +164,7 @@ def delete_symbols(symbols):
             print('removing symbol', symbol, 'from databox')
             if symbol in _USER_DEFINED_COMMANDS:
                 del _USER_DEFINED_COMMANDS[symbol]
+                print('symbol', symbol, 'has been removed from databox')
             else:
                 print('warning: symbol', symbol, 'is not present in databox')
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
@@ -184,6 +188,7 @@ def bind_symbol_with_command(symbol, command='touch', command_arguments=None):
     _USER_DEFINED_COMMANDS[symbol] = Command(command, command_arguments)
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
         pickle.dump(_USER_DEFINED_COMMANDS, handle)
+    print('symbol ', symbol, 'has been binded with command')
 
 
 def get_command_and_arguments(command_id):
@@ -205,6 +210,38 @@ def get_command_and_arguments(command_id):
         return command.get_command_and_argument()
     else:
         return None
+
+def export_settings(settings_name):
+    """Export saved settings to file.
+
+    Args:
+        settings_name (str): The id of the saved settings.
+    """
+    print('exporting in databox')
+    global _USER_DEFINED_COMMANDS
+    _check_and_load_commands()
+    if not os.path.exists(EXPORT_PATH):
+        os.makedirs(EXPORT_PATH)
+    with open(EXPORT_PATH + settings_name, 'wb') as handle:
+        pickle.dump(_USER_DEFINED_COMMANDS, handle)
+
+def import_settings(settings_name):
+    """Import saved settings from file.
+
+    Args:
+        settings_name (str): The id of the saved settings.
+    """
+    print('importing in databox')
+    global _USER_DEFINED_COMMANDS
+    try:
+        handle = open(EXPORT_PATH + settings_name, 'rb')
+        _USER_DEFINED_COMMANDS = pickle.load(handle)
+    except FileNotFoundError:
+        print("name of settings not found in databox database")
+        _thread.interrupt_main()
+        sys.exit(1)
+    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+        pickle.dump(_USER_DEFINED_COMMANDS, handle)
 
 
 def _check_and_load_commands():
