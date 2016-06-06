@@ -169,7 +169,7 @@ def _get_configured_parser():
                                       'settings to file')
     subparser.add_argument(dest='settings_name',
                            default="settings", metavar='NAME', help='set the '
-                           'name of export')   
+                           'name of export')
 
     return parser
 

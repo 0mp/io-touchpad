@@ -11,6 +11,7 @@ import errno
 import pickle
 import os
 
+
 class Command(object):
     """A class for storing information about a command.
     This might be an overkill for now but in the future it might allow us
@@ -163,7 +164,7 @@ def delete_symbols(symbols):
             print('removing symbol', symbol, 'from databox')
             if symbol in _USER_DEFINED_COMMANDS:
                 del _USER_DEFINED_COMMANDS[symbol]
-                print('symbol', symbol, 'has been removed from databox') 
+                print('symbol', symbol, 'has been removed from databox')
             else:
                 print('warning: symbol', symbol, 'is not present in databox')
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
@@ -212,6 +213,7 @@ def get_command_and_arguments(command_id):
 
 def export_settings(settings_name):
     """Export saved settings to file.
+
     Args:
         settings_name (str): The id of the saved settings.
     """
@@ -225,6 +227,7 @@ def export_settings(settings_name):
 
 def import_settings(settings_name):
     """Import saved settings from file.
+
     Args:
         settings_name (str): The id of the saved settings.
     """
@@ -234,6 +237,7 @@ def import_settings(settings_name):
         _USER_DEFINED_COMMANDS = pickle.load(handle)
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
         pickle.dump(_USER_DEFINED_COMMANDS, handle)
+
 
 def _check_and_load_commands():
     """Check whether the user-defined commands've been loaded and load them.
