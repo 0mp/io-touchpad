@@ -25,12 +25,13 @@ SYSTEM_BITNESS_64 = 64
 HARDCODED_32BIT_DIR = '32/'
 HARDCODED_64BIT_DIR = '64/'
 
+EXPORT_DIR = 'exports/'
+
 DISTANCE_TOLERANCE_FILE = 'distance-tolerance$sym.dat'
+EXPORT_SAVING_FILE = 'exports/$sym'
 MODEL_FILE = 'nn-model$sym.dat'
 TRAINING_SET_FILE = 'training-set$sym.dat'
 SYMBOL_LIST_FILE = 'symbol-list.dat'
-EXPORT_SAVING_FILE = 'exports/$sym'
-EXPORT_DIRECTORY = 'exports'
 
 
 class Classifier:
@@ -153,8 +154,8 @@ class Classifier:
             box.append(training_set)
         export_path = Classifier.\
             _get_file_path(self.files[EXPORT_SAVING_FILE], settings_name)
-        if not os.path.exists(DATA_PATH + USER_DIR + EXPORT_DIRECTORY):
-            os.makedirs(DATA_PATH + USER_DIR + EXPORT_DIRECTORY)
+        if not os.path.exists(DATA_PATH + USER_DIR + EXPORT_DIR):
+            os.makedirs(DATA_PATH + USER_DIR + EXPORT_DIR)
         file_with_export = open(export_path, 'wb')
         pickle.dump(box, file_with_export)
         file_with_export.close()
