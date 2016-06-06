@@ -233,8 +233,13 @@ def import_settings(settings_name):
     """
     print('importing in databox')
     global _USER_DEFINED_COMMANDS
-    with open(EXPORT_PATH + settings_name, 'rb') as handle:
+    try:
+        handle = open(EXPORT_PATH + settings_name, 'rb')
         _USER_DEFINED_COMMANDS = pickle.load(handle)
+    except FileNotFoundError:
+        print("name of settings not found in databox database")
+        _thread.interrupt_main()
+        sys.exit(1)
     with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
         pickle.dump(_USER_DEFINED_COMMANDS, handle)
 

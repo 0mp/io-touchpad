@@ -167,18 +167,21 @@ class Classifier:
             settings_name (str): The id of the saved settings.
         """
         print('importing in classifier')
-        export_path = Classifier.\
-            _get_file_path(self.files[EXPORT_SAVING_FILE], settings_name)
-        file_with_export = open(export_path, 'rb')
-        box = pickle.load(file_with_export)
-        file_with_export.close()
-
+        try:
+            export_path = Classifier.\
+                _get_file_path(self.files[EXPORT_SAVING_FILE], settings_name)
+            file_with_export = open(export_path, 'rb')
+            box = pickle.load(file_with_export)
+            file_with_export.close()
+        except FileNotFoundError:
+            print("name of settings not found in classifier database")
+            _thread.interrupt_main()
+            sys.exit(1)
         symbol_list = box.pop(0)
         file_with_symbols = \
             open(self.files[SYMBOL_LIST_FILE], 'wb')
         pickle.dump(symbol_list, file_with_symbols)
         file_with_symbols.close()
-        print(symbol_list)
 
         general_model = box.pop(0)
         file_with_model = \
@@ -186,7 +189,6 @@ class Classifier:
                  'wb')
         pickle.dump(general_model, file_with_model)
         file_with_model.close()
-        print(general_model)
 
         for symbol in symbol_list:
             learning_model = box.pop(0)
