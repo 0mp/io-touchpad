@@ -32,6 +32,8 @@ MODIFY_SUBCOMMAND = 'modify'
 REDRAW_SUBCOMMAND = 'redraw'
 REPEAT_SUBCOMMAND = 'repeat'
 RUN_SUBCOMMAND = 'run'
+IMPORT_SUBCOMMAND = 'import'
+EXPORT_SUBCOMMAND = 'export'
 RUN_USER_MODE = 'user'
 RUN_32_MODE = '32'
 RUN_64_MODE = '64'
@@ -154,6 +156,20 @@ def _get_configured_parser():
                            'app in; use <32> for 32-bit machines, <64> for '
                            '64-bit machines and <user> to use user-defined '
                            'symbols')
+
+    # The import subcommand section.
+    subparser = subparsers.add_parser(IMPORT_SUBCOMMAND, help='import current '
+                                      'settings to file')
+    subparser.add_argument(dest='settings_name',
+                           default="settings", metavar='NAME', help='set the '
+                           'name of import')
+
+    # The export subcommand section.
+    subparser = subparsers.add_parser(EXPORT_SUBCOMMAND, help='export current '
+                                      'settings to file')
+    subparser.add_argument(dest='settings_name',
+                           default="settings", metavar='NAME', help='set the '
+                           'name of export')   
 
     return parser
 
@@ -289,6 +305,27 @@ def _run(args):
     finally:
         _start_threads(system_bitness=system_bitness)
 
+def _import_settings(args):
+    """Wrap up the import subcommand to make main() less complex.
+
+    Args:
+        args (dict): Parsed command line arguments.
+    """
+    classifier = classifier_module.Classifier(learning_mode=True)
+    classifier.import_files(args.settings_name)
+    databox.import_settings(args.settings_name)
+
+
+def _export_settings(args):
+    """Wrap up the export subcommand to make main() less complex.
+
+    Args:
+        args (dict): Parsed command line arguments.
+    """
+    classifier = classifier_module.Classifier(learning_mode=False)
+    classifier.export_files(args.settings_name)
+    databox.export_settings(args.settings_name)
+
 
 def main():
     """The main function."""
@@ -315,5 +352,9 @@ def main():
         _repeat(args)
     elif args.subcommand == RUN_SUBCOMMAND:
         _run(args)
+    elif args.subcommand == IMPORT_SUBCOMMAND:
+        _import_settings(args)
+    elif args.subcommand == EXPORT_SUBCOMMAND:
+        _export_settings(args)
 
 main()

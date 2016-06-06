@@ -29,7 +29,8 @@ DISTANCE_TOLERANCE_FILE = 'distance-tolerance$sym.dat'
 MODEL_FILE = 'nn-model$sym.dat'
 TRAINING_SET_FILE = 'training-set$sym.dat'
 SYMBOL_LIST_FILE = 'symbol-list.dat'
-
+EXPORT_SAVING_FILE = 'exports/$sym'
+EXPORT_DIRECTORY = 'exports'
 
 class Classifier:
     """Class for learning and classifying drawn symbols."""
@@ -45,7 +46,8 @@ class Classifier:
                 instead of the user defined symbols.
         """
         file_names = [DISTANCE_TOLERANCE_FILE, MODEL_FILE,
-                      TRAINING_SET_FILE, SYMBOL_LIST_FILE]
+                      TRAINING_SET_FILE, SYMBOL_LIST_FILE,
+                      EXPORT_SAVING_FILE]
         file_paths = Classifier._build_paths(file_names, system_bitness)
         #  (self.distance_tolerance_file_path, self.model_file_path,
         #   self.training_set_file_path) = file_paths
@@ -113,13 +115,18 @@ class Classifier:
         self.training_set = []
         self.symbol_name = None
 
-    def _load_training_set(self, symbol):
+
+
+
+    def _load_training_set(self, symbol, file_not_found_ignore=False):
         """Load and return traning symbols from file."""
         try:
             training_path = Classifier.\
                 _get_file_path(self.files[TRAINING_SET_FILE], symbol)
             file_with_training = open(training_path, 'rb')
         except FileNotFoundError:
+            if file_not_found_ignore:
+                return None
             print("classifier.py: error: file with training set doesn't "
                   "exist; please start the application in the learning mode",
                   file=sys.stderr)
@@ -129,6 +136,81 @@ class Classifier:
         training_set = pickle.load(file_with_training)
         file_with_training.close()
         return training_set
+
+    def export_files(self, settings_name):
+        """Export saved settings to file.
+        Args:
+            settings_name (str): The id of the saved settings.
+        """
+        print('exporting in classifier')
+        box = []
+        box.append(self.symbol_list)
+        box.append(self.learning_models[""])
+        for symbol in self.symbol_list:
+            box.append(self.learning_models[symbol])
+            box.append(self.tolerance_distances[symbol])
+            training_set = self._load_training_set(symbol, True)
+            box.append(training_set)
+        export_path = Classifier.\
+            _get_file_path(self.files[EXPORT_SAVING_FILE], settings_name)
+        if not os.path.exists(DATA_PATH + USER_DIR + EXPORT_DIRECTORY):
+            os.makedirs(DATA_PATH + USER_DIR + EXPORT_DIRECTORY)
+        file_with_export = open(export_path, 'wb')
+        pickle.dump(box, file_with_export)
+        file_with_export.close()
+
+    def import_files(self, settings_name):
+        """Import saved settings from file.
+        Args:
+            settings_name (str): The id of the saved settings.
+        """
+        print('importing in classifier')
+        export_path = Classifier.\
+            _get_file_path(self.files[EXPORT_SAVING_FILE], settings_name)
+        file_with_export = open(export_path, 'rb')
+        box = pickle.load(file_with_export)
+        file_with_export.close()
+
+        symbol_list = box.pop(0)
+        file_with_symbols = \
+            open(self.files[SYMBOL_LIST_FILE], 'wb')
+        pickle.dump(symbol_list, file_with_symbols)
+        file_with_symbols.close()
+        print(symbol_list)
+
+        general_model = box.pop(0)
+        file_with_model = \
+            open(Classifier._get_file_path(self.files[MODEL_FILE], ""),
+                 'wb')
+        pickle.dump(general_model, file_with_model)
+        file_with_model.close()
+        print(general_model)
+
+        for symbol in symbol_list:
+            learning_model = box.pop(0)
+            file_with_model = \
+                open(Classifier._get_file_path(self.files[MODEL_FILE], symbol),
+                     'wb')
+            pickle.dump(learning_model, file_with_model)
+            file_with_model.close()
+
+            tolerance_distance = box.pop(0)
+            tolerance_distance_path = Classifier._get_file_path(
+                self.files[DISTANCE_TOLERANCE_FILE], symbol)
+            file_with_tolerance_distance = \
+                open(tolerance_distance_path, 'w')
+            file_with_tolerance_distance.write("%.16f\n"
+                                               % (tolerance_distance))
+            file_with_tolerance_distance.close()
+
+            training_set = box.pop(0)
+            file_with_training_path = \
+                Classifier._get_file_path(self.files[TRAINING_SET_FILE], symbol)
+            file_with_training = \
+                open(file_with_training_path, 'wb')
+            pickle.dump(training_set, file_with_training)
+            file_with_training.close()
+
 
     def reset_training_set(self, new_training_size, symbol_name):
         """Start the new training set.
