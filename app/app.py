@@ -11,16 +11,16 @@ which is based on evtest (version 1.32).
 """
 
 import argparse
-import queue
-import threading
 import sys
+import threading
+
+import queue
 
 from classifier import classifier as classifier_module
 from databox import databox
-from terminationhandler import terminationhandler
-from threads import application
-from threads import listener
 from signalcollection import signalcollection
+from terminationhandler import terminationhandler
+from threads import application, listener
 
 MIN_TRAINING_SIZE = 5
 
@@ -225,7 +225,7 @@ def _activate(args):
     """
     classifier = classifier_module.Classifier()
     if classifier.activate_symbols(args.symbols):
-        databox.activate(args.symbols)
+        databox_instance.activate(args.symbols)
         sys.exit(0)
     else:
         print('activation failed')
@@ -243,9 +243,9 @@ def _add(args):
         print('app.py: error: the training size should be at least '
               '{0}'.format(MIN_TRAINING_SIZE), file=sys.stderr)
         sys.exit(1)
-    databox.bind_symbol_with_command(args.symbol_name, args.shell_command,
-                                     args.shell_command_arguments,
-                                     stop_when_overwriting=True)
+    databox_instance.bind_symbol_with_command(args.symbol_name, args.shell_command,
+                                              args.shell_command_arguments,
+                                              stop_when_overwriting=True)
     _start_threads(learning_mode=True, symbol_name=args.symbol_name,
                    training_size=args.training_size)
 
@@ -258,7 +258,7 @@ def _deactivate(args):
     """
     classifier = classifier_module.Classifier()
     classifier.deactivate_symbols(args.symbols)
-    databox.deactivate(args.symbols)
+    databox_instance.deactivate(args.symbols)
     sys.exit(0)
 
 
@@ -270,7 +270,7 @@ def _delete(args):
     """
     classifier = classifier_module.Classifier()
     classifier.delete_symbols(args.symbols)
-    databox.delete_symbols(args.symbols)
+    databox_instance.delete_symbols(args.symbols)
     sys.exit(0)
 
 
@@ -282,7 +282,7 @@ def _export_settings(args):
     """
     classifier = classifier_module.Classifier()
     classifier.export_files(args.settings_name)
-    databox.export_settings(args.settings_name)
+    databox_instance.export_settings(args.settings_name)
     sigcol = signalcollection.SignalCollection()
     sigcol.export_settings(args.settings_name)
 
@@ -295,13 +295,14 @@ def _import_settings(args):
     """
     classifier = classifier_module.Classifier()
     classifier.import_files(args.settings_name)
-    databox.import_settings(args.settings_name)
+    databox_instance.import_settings(args.settings_name)
     sigcol = signalcollection.SignalCollection()
     sigcol.import_settings(args.settings_name)
 
+
 def _list():
     """Wrap up the list subcommand to make main() less complex."""
-    databox.print_commands()
+    databox_instance.print_commands()
     sys.exit(0)
 
 
@@ -311,9 +312,9 @@ def _modify(args):
     Args:
         args (dict): Parsed command line arguments.
     """
-    databox.bind_symbol_with_command(args.symbol_name, args.shell_command,
-                                     args.shell_command_arguments, False,
-                                     True)
+    databox_instance.bind_symbol_with_command(args.symbol_name, args.shell_command,
+                                              args.shell_command_arguments, False,
+                                              True)
     sys.exit(0)
 
 
@@ -327,7 +328,7 @@ def _redraw(args):
         print('app.py: error: the training size should be at least '
               '{0}'.format(MIN_TRAINING_SIZE), file=sys.stderr)
         sys.exit(1)
-    if not databox.symbol_available_in_user_made(args.symbol_name):
+    if not databox_instance.symbol_available_in_user_made(args.symbol_name):
         print('symbol', args.symbol_name, 'is not available in database')
         sys.exit(1)
     _start_threads(learning_mode=True, symbol_name=args.symbol_name,
@@ -357,6 +358,7 @@ def _set_max_waittime(args):
     sigcol = signalcollection.SignalCollection()
     sigcol.set_max_break_between_two_signals(args.max_timewait)
 
+
 def _run(args):
     """Wrap up the run subcommand to make main() less complex.
 
@@ -375,6 +377,7 @@ def main():
     """The main function."""
     terminationhandler.setup()
 
+    databox_instance = databox.Databox()
     parser = _get_configured_parser()
     args = parser.parse_args()
 

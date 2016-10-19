@@ -8,9 +8,10 @@ Global variables:
 """
 
 import errno
-import pickle
 import os
+import pickle
 import sys
+
 import _thread
 
 
@@ -83,204 +84,196 @@ _BUILTIN_COMMANDS = {
 }
 
 
-def symbol_available_in_user_made(symbol):
-    """Check if given symbol is present in user-made database.
+class Databox(object):
 
-    Args:
-        symbol (str): name of the symbol which we check
-    """
-    _check_and_load_commands()
-    return symbol in _USER_DEFINED_COMMANDS
+    def symbol_available_in_user_made(self, symbol):
+        """Check if given symbol is present in user-made database.
 
+        Args:
+            symbol (str): name of the symbol which we check
+        """
+        self._check_and_load_commands()
+        return symbol in _USER_DEFINED_COMMANDS
 
-def is_active(symbol):
-    """Check if given symbol is active.
+    def is_active(self, symbol):
+        """Check if given symbol is active.
 
-    Args:
-        symbol (str): name of the symbol which we check to be active
-    if there is no such symbol in database, returns false.
-    """
-    _check_and_load_commands()
+        Args:
+            symbol (str): name of the symbol which we check to be active
+        if there is no such symbol in database, returns false.
+        """
+        self._check_and_load_commands()
 
-    if Command.is_builtin(symbol):
-        command = _BUILTIN_COMMANDS[symbol]
-    elif Command.is_user_defined(symbol):
-        command = _USER_DEFINED_COMMANDS[symbol]
-    else:
-        return False
-
-    return command.is_active()
-
-
-def print_commands():
-    """Print command list for user."""
-    global _USER_DEFINED_COMMANDS
-    _check_and_load_commands()
-    for sym in _USER_DEFINED_COMMANDS:
-        command = _USER_DEFINED_COMMANDS[sym]
-        print(sym, command.to_str())
-
-
-def _set_status(symbols, status):
-    """Set status of command on active or inactive.
-
-    Args:
-        symbols (list of str): Symbols to set status.
-        status ('active'/'inactive'): New status.
-    """
-    global _USER_DEFINED_COMMANDS
-    _check_and_load_commands()
-    if not symbols:
-        symbols = _USER_DEFINED_COMMANDS
-    for symbol in symbols:
-        if symbol in _USER_DEFINED_COMMANDS:
-            _USER_DEFINED_COMMANDS[symbol].status = status
-            print('the status of', symbol, 'has been set on', status)
+        if Command.is_builtin(symbol):
+            command = _BUILTIN_COMMANDS[symbol]
+        elif Command.is_user_defined(symbol):
+            command = _USER_DEFINED_COMMANDS[symbol]
         else:
-            print('warning: symbol', symbol, 'is not present in databox')
-    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
-        pickle.dump(_USER_DEFINED_COMMANDS, handle)
+            return False
 
+        return command.is_active()
 
-def activate(symbols):
-    """Change the status of given symbols on active.
+    def print_commands(self):
+        """Print command list for user."""
+        global _USER_DEFINED_COMMANDS
+        self._check_and_load_commands()
+        for sym in _USER_DEFINED_COMMANDS:
+            command = _USER_DEFINED_COMMANDS[sym]
+            print(sym, command.to_str())
 
-    Args:
-        symbols (list of str): Symbols to set status.
-    """
-    _set_status(symbols, 'active')
+    def _set_status(self, symbols, status):
+        """Set status of command on active or inactive.
 
-
-def deactivate(symbols):
-    """Change the status of given symbols on inactive.
-
-    Args:
-        symbols (list of str): Symbols to set status.
-    """
-    _set_status(symbols, 'inactive')
-
-
-def delete_symbols(symbols):
-    """Delete commands related to given symbols.
-    if symbols is empty list, then remove all symbols.
-    Args:
-        symbols (list of str): Symbols to remove names.
-    """
-    global _USER_DEFINED_COMMANDS
-    if not symbols:
-        print('removing all symbols from databox...')
-        _USER_DEFINED_COMMANDS = {}
-    elif symbols:
-        _check_and_load_commands()
+        Args:
+            symbols (list of str): Symbols to set status.
+            status ('active'/'inactive'): New status.
+        """
+        global _USER_DEFINED_COMMANDS
+        self._check_and_load_commands()
+        if not symbols:
+            symbols = _USER_DEFINED_COMMANDS
         for symbol in symbols:
-            print('removing symbol', symbol, 'from databox')
             if symbol in _USER_DEFINED_COMMANDS:
-                del _USER_DEFINED_COMMANDS[symbol]
-                print('symbol', symbol, 'has been removed from databox')
+                _USER_DEFINED_COMMANDS[symbol].status = status
+                print('the status of', symbol, 'has been set on', status)
             else:
                 print('warning: symbol', symbol, 'is not present in databox')
-    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
-        pickle.dump(_USER_DEFINED_COMMANDS, handle)
+        with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+            pickle.dump(_USER_DEFINED_COMMANDS, handle)
 
+    def activate(self, symbols):
+        """Change the status of given symbols on active.
 
-def bind_symbol_with_command(symbol, command='touch', command_arguments=None,
-                             stop_when_overwriting=False,
-                             stop_when_new=False):
-    """Bind the symbol's name with the provided command.
-    The default command is touch and the command_arguments will be set to
-    '/tmp/created_by_' + symbol.
-    Args:
-        symbol (str): The symbol's name.
-        command (str): The shell command to be bound with the symbol.
-        command_arguments (str): The arguments for the command.
-    """
-    global _USER_DEFINED_COMMANDS
-    _check_and_load_commands()
-    if stop_when_overwriting and symbol in _USER_DEFINED_COMMANDS:
-        print("symbol", symbol, 'is already in database')
-        _thread.interrupt_main()
-        sys.exit(1)
-    if stop_when_new and symbol not in _USER_DEFINED_COMMANDS:
-        print("symbol", symbol, 'is not present in database')
-        _thread.interrupt_main()
-        sys.exit(1)
-    if command == 'touch' and command_arguments is None:
-        command_arguments = '/tmp/created_by_' + symbol
+        Args:
+            symbols (list of str): Symbols to set status.
+        """
+        self._set_status(symbols, 'active')
 
-    _USER_DEFINED_COMMANDS[symbol] = Command(command, command_arguments)
-    if not os.path.exists(DATA_PATH):
-        os.makedirs(DATA_PATH)
-    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
-        pickle.dump(_USER_DEFINED_COMMANDS, handle)
-    print('symbol ', symbol, 'has been binded with command')
+    def deactivate(self, symbols):
+        """Change the status of given symbols on inactive.
 
+        Args:
+            symbols (list of str): Symbols to set status.
+        """
+        self._set_status(symbols, 'inactive')
 
-def get_command_and_arguments(command_id):
-    """Return the command and arguements related to command_id.
-    Args:
-        command_id (str): The id of the command.
-    Returns:
-        The shell command and the arguments related to command_id if the id
-        was found and is active. None otherwise.
-    """
-    _check_and_load_commands()
-    if Command.is_builtin(command_id):
-        command = _BUILTIN_COMMANDS[command_id]
-    elif Command.is_user_defined(command_id):
-        command = _USER_DEFINED_COMMANDS[command_id]
-    else:
-        command = None
-    if command is not None and command.is_active():
-        return command.get_command_and_argument()
-    else:
-        return None
+    def delete_symbols(self, symbols):
+        """Delete commands related to given symbols.
+        if symbols is empty list, then remove all symbols.
+        Args:
+            symbols (list of str): Symbols to remove names.
+        """
 
+        global _USER_DEFINED_COMMANDS
+        if not symbols:
+            print('removing all symbols from databox...')
+            _USER_DEFINED_COMMANDS = {}
+        elif symbols:
+            self._check_and_load_commands()
+            for symbol in symbols:
+                print('removing symbol', symbol, 'from databox')
+                if symbol in _USER_DEFINED_COMMANDS:
+                    del _USER_DEFINED_COMMANDS[symbol]
+                    print('symbol', symbol, 'has been removed from databox')
+                else:
+                    print('warning: symbol', symbol, 'is not present in databox')
+        with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+            pickle.dump(_USER_DEFINED_COMMANDS, handle)
 
-def export_settings(settings_name):
-    """Export saved settings to file.
+    def bind_symbol_with_command(self, symbol, command='touch', command_arguments=None,
+                                 stop_when_overwriting=False,
+                                 stop_when_new=False):
+        """Bind the symbol's name with the provided command.
+        The default command is touch and the command_arguments will be set to
+        '/tmp/created_by_' + symbol.
+        Args:
+            symbol (str): The symbol's name.
+            command (str): The shell command to be bound with the symbol.
+            command_arguments (str): The arguments for the command.
+        """
+        global _USER_DEFINED_COMMANDS
+        self._check_and_load_commands()
+        if stop_when_overwriting and symbol in _USER_DEFINED_COMMANDS:
+            print("symbol", symbol, 'is already in database')
+            _thread.interrupt_main()
+            sys.exit(1)
+        if stop_when_new and symbol not in _USER_DEFINED_COMMANDS:
+            print("symbol", symbol, 'is not present in database')
+            _thread.interrupt_main()
+            sys.exit(1)
+        if command == 'touch' and command_arguments is None:
+            command_arguments = '/tmp/created_by_' + symbol
 
-    Args:
-        settings_name (str): The id of the saved settings.
-    """
-    print('exporting in databox')
-    global _USER_DEFINED_COMMANDS
-    _check_and_load_commands()
-    if not os.path.exists(EXPORT_PATH):
-        os.makedirs(EXPORT_PATH)
-    with open(EXPORT_PATH + settings_name, 'wb') as handle:
-        pickle.dump(_USER_DEFINED_COMMANDS, handle)
+        _USER_DEFINED_COMMANDS[symbol] = Command(command, command_arguments)
+        if not os.path.exists(DATA_PATH):
+            os.makedirs(DATA_PATH)
+        with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+            pickle.dump(_USER_DEFINED_COMMANDS, handle)
+        print('symbol ', symbol, 'has been binded with command')
 
-
-def import_settings(settings_name):
-    """Import saved settings from file.
-
-    Args:
-        settings_name (str): The id of the saved settings.
-    """
-    print('importing in databox')
-    global _USER_DEFINED_COMMANDS
-    try:
-        handle = open(EXPORT_PATH + settings_name, 'rb')
-        _USER_DEFINED_COMMANDS = pickle.load(handle)
-    except FileNotFoundError:
-        print("name of settings not found in databox database")
-        _thread.interrupt_main()
-        sys.exit(1)
-    with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
-        pickle.dump(_USER_DEFINED_COMMANDS, handle)
-
-
-def _check_and_load_commands():
-    """Check whether the user-defined commands've been loaded and load them.
-    It uses the global statement but it is unavoidable in the current
-    architecture of the databox module.
-    """
-    global _USER_DEFINED_COMMANDS
-    if _USER_DEFINED_COMMANDS is None:
-        try:
-            handle = open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'rb')
-        except OSError as file_not_found_error:
-            if file_not_found_error.errno == errno.ENOENT:
-                _USER_DEFINED_COMMANDS = {}
+    def get_command_and_arguments(self, command_id):
+        """Return the command and arguements related to command_id.
+        Args:
+            command_id (str): The id of the command.
+        Returns:
+            The shell command and the arguments related to command_id if the id
+            was found and is active. None otherwise.
+        """
+        self._check_and_load_commands()
+        if Command.is_builtin(command_id):
+            command = _BUILTIN_COMMANDS[command_id]
+        elif Command.is_user_defined(command_id):
+            command = _USER_DEFINED_COMMANDS[command_id]
         else:
+            command = None
+        if command is not None and command.is_active():
+            return command.get_command_and_argument()
+        else:
+            return None
+
+    def export_settings(self, settings_name):
+        """Export saved settings to file.
+
+        Args:
+            settings_name (str): The id of the saved settings.
+        """
+        print('exporting in databox')
+        global _USER_DEFINED_COMMANDS
+        self._check_and_load_commands()
+        if not os.path.exists(EXPORT_PATH):
+            os.makedirs(EXPORT_PATH)
+        with open(EXPORT_PATH + settings_name, 'wb') as handle:
+            pickle.dump(_USER_DEFINED_COMMANDS, handle)
+
+    def import_settings(self, settings_name):
+        """Import saved settings from file.
+
+        Args:
+            settings_name (str): The id of the saved settings.
+        """
+        print('importing in databox')
+        global _USER_DEFINED_COMMANDS
+        try:
+            handle = open(EXPORT_PATH + settings_name, 'rb')
             _USER_DEFINED_COMMANDS = pickle.load(handle)
+        except FileNotFoundError:
+            print("name of settings not found in databox database")
+            _thread.interrupt_main()
+            sys.exit(1)
+        with open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'wb') as handle:
+            pickle.dump(_USER_DEFINED_COMMANDS, handle)
+
+    def _check_and_load_commands(self):
+        """Check whether the user-defined commands've been loaded and load them.
+        It uses the global statement but it is unavoidable in the current
+        architecture of the databox module.
+        """
+        global _USER_DEFINED_COMMANDS
+        if _USER_DEFINED_COMMANDS is None:
+            try:
+                handle = open(DATA_PATH + USER_DEFINED_COMMANDS_FILE, 'rb')
+            except OSError as file_not_found_error:
+                if file_not_found_error.errno == errno.ENOENT:
+                    _USER_DEFINED_COMMANDS = {}
+            else:
+                _USER_DEFINED_COMMANDS = pickle.load(handle)
